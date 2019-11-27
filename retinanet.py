@@ -13,15 +13,21 @@ import time
 from utils import BasicBlock, Bottleneck, BBoxTransform, ClipBoxes
 from anchors import Anchors
 import losses
-from lib.nms.gpu_nms import gpu_nms
+#from lib.nms.gpu_nms import gpu_nms
 from efficientnet_model import EfficientNet
+from torchvision.ops import nms as NMS
 
+def nms(dets, thresh):
+    boxes   = dets[:, :4]
+    scores  = dets[:, -1]
+    return NMS(boxes, scores, thresh)
+'''
 def nms(dets, thresh):
     "Dispatch to either CPU or GPU NMS implementations.\
     Accept dets as tensor"""
     dets = dets.cpu().numpy()
     return gpu_nms(dets, thresh)
-
+'''
 class PyramidFeatures(nn.Module):
     def __init__(self, C3_size, C4_size, C5_size, feature_size=256):
         super(PyramidFeatures, self).__init__()
