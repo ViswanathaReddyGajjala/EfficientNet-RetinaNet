@@ -88,9 +88,9 @@ path/to/image.jpg,xmin,ymin,xmax,ymax,label
 
 A full example:
 ```
-/data/imgs/img_001.jpg,837,346,981,456,1
-/data/imgs/img_002.jpg,215,312,279,391,2
-/data/imgs/img_002.jpg,22,5,89,84,1
+/data/imgs/img_001.jpg,837,346,981,456,cat
+/data/imgs/img_002.jpg,215,312,279,391,dog
+/data/imgs/img_002.jpg,22,5,89,84,cat
 ```
 
 This defines a dataset with 2 images.
@@ -111,6 +111,6 @@ Do not include a background class as it is implicit.
 
 For example:
 ```
-fish,1
+dog,1
 cat,2
 ```
