@@ -28,17 +28,6 @@ EfficientNets achieve state-of-the-art accuracy on ImageNet with an order of mag
 
 
 # Training 
-* Build the NMS extension
-    ```
-    %cd lib/nms
-    !rm -rf /build
-    !rm *.so
-    
-    %cd ..
-    
-    !python setup3.py build_ext --inplace
-    ```
-
 *  For training
    * To create csv files.
    * Change paths in the create_csv_files.py
