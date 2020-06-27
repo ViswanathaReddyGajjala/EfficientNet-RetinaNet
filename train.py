@@ -13,7 +13,6 @@ import argparse
 import pdb
 import collections
 import sys
-
 import numpy as np
 
 import torch
@@ -43,7 +42,6 @@ def train(args):
     
     dataset_train = CSVDataset(train_file=train_csv, class_list=labels_csv, transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
     dataset_val = CSVDataset(train_file=test_csv, class_list=labels_csv, transform=transforms.Compose([Normalizer(), Resizer()]))
-    
     sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
     dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
     
@@ -53,18 +51,15 @@ def train(args):
     retinanet = retinanet.to(device)
     
     retinanet = torch.nn.DataParallel(retinanet).to(device)
-    
     retinanet.training = True
     
     optimizer = optim.Adam(retinanet.parameters(), lr=1e-5)
-    
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True)
     
     loss_hist = collections.deque(maxlen=500)
     
     retinanet.train()
     retinanet.module.freeze_bn()
-    
     print('Num training images: {}'.format(len(dataset_train)))
     
     for epoch_num in range(epochs):
@@ -98,10 +93,8 @@ def train(args):
         retinanet.eval()
         torch.save(retinanet, 'model_final.pt'.format(epoch_num))
   
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    
     parser.add_argument('train_csv',help='Path to train csv')
     parser.add_argument('test_csv',help='Path to test csv')
     parser.add_argument('labels_csv', help='Path to class labels')
