@@ -1,13 +1,11 @@
+%%writefile eval.py
 from __future__ import print_function
-
 import numpy as np
 import json
 import os
-
 import torch
 
-
-
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def compute_overlap(a, b):
     """
     Parameters
@@ -86,7 +84,7 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
             scale = data['scale']
 
             # run network
-            scores, labels, boxes = retinanet(data['img'].permute(2, 0, 1).cuda().float().unsqueeze(dim=0))
+            scores, labels, boxes = retinanet(data['img'].permute(2, 0, 1).to(device).float().unsqueeze(dim=0))
             scores = scores.cpu().numpy()
             labels = labels.cpu().numpy()
             boxes  = boxes.cpu().numpy()
@@ -166,8 +164,6 @@ def evaluate(
         A dict mapping class names to mAP scores.
     """
 
-
-
     # gather all detections and annotations
 
     all_detections     = _get_detections(generator, retinanet, score_threshold=score_threshold, max_detections=max_detections, save_path=save_path)
@@ -237,4 +233,3 @@ def evaluate(
         print('{}: {}'.format(label_name, average_precisions[label][0]))
     
     return average_precisions, MAP
-
