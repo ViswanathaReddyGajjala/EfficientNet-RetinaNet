@@ -6,29 +6,14 @@ Created on Wed Jul  3 09:04:07 2019
 @author: viswanatha
 """
 
-import time
-import os
-import copy
 import argparse
-import pdb
 import collections
-import sys
 import numpy as np
-
 import torch
-import torch.nn as nn
 import torch.optim as optim
-from torch.optim import lr_scheduler
-from torch.autograd import Variable
-from torchvision import datasets, models, transforms
-import torchvision
-
-from anchors import Anchors
-import losses
-from dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, UnNormalizer, Normalizer
-
-from torch.utils.data import Dataset, DataLoader
-
+from torchvision import transforms
+from dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, Normalizer
+from torch.utils.data import DataLoader
 from eval import evaluate
 from retinanet import RetinaNet_efficientnet_b4
 
