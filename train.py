@@ -49,12 +49,10 @@ def train(args):
     
     retinanet = RetinaNet_efficientnet_b4(num_classes=dataset_train.num_classes(), model_type=model_type)
     
-    use_gpu = True
-
-    if use_gpu:
-      retinanet = retinanet.cuda()
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    retinanet = retinanet.to(device)
     
-    retinanet = torch.nn.DataParallel(retinanet).cuda()
+    retinanet = torch.nn.DataParallel(retinanet).to(device)
     
     retinanet.training = True
     
@@ -76,7 +74,8 @@ def train(args):
         for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
-                classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                #classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                classification_loss, regression_loss = retinanet([data['img'].to(device).float(), data['annot']])
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
                 loss = classification_loss + regression_loss
