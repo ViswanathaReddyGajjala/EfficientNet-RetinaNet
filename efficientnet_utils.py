@@ -110,7 +110,8 @@ class Conv2dStaticSamePadding(nn.Conv2d):
         self.stride = self.stride if len(self.stride) == 2 else [self.stride[0]] * 2
 
         # Calculate padding based on image size and save it
-        assert image_size is not None
+        if image_size is None:
+            raise AssertionError
         ih, iw = image_size if type(image_size) == list else [image_size, image_size]
         kh, kw = self.weight.size()[-2:]
         sh, sw = self.stride
@@ -163,7 +164,8 @@ class BlockDecoder(object):
     @staticmethod
     def _decode_block_string(block_string):
         """ Gets a block through a string notation of arguments. """
-        assert isinstance(block_string, str)
+        if not isinstance(block_string, str):
+            raise AssertionError
 
         ops = block_string.split('_')
         options = {}
@@ -174,8 +176,9 @@ class BlockDecoder(object):
                 options[key] = value
 
         # Check stride
-        assert (('s' in options and len(options['s']) == 1) or
-                (len(options['s']) == 2 and options['s'][0] == options['s'][1]))
+        if not (('s' in options and len(options['s']) == 1) or
+                (len(options['s']) == 2 and options['s'][0] == options['s'][1])):
+            raise AssertionError
 
         return BlockArgs(
             kernel_size=int(options['k']),
@@ -212,7 +215,8 @@ class BlockDecoder(object):
         :param string_list: a list of strings, each string is a notation of block
         :return: a list of BlockArgs namedtuples of block args
         """
-        assert isinstance(string_list, list)
+        if not isinstance(string_list, list):
+            raise AssertionError
         blocks_args = []
         for block_string in string_list:
             blocks_args.append(BlockDecoder._decode_block_string(block_string))
@@ -307,5 +311,6 @@ def load_pretrained_weights(model, model_name, load_fc=True):
         state_dict.pop('_fc.weight')
         state_dict.pop('_fc.bias')
         res = model.load_state_dict(state_dict, strict=False)
-        assert str(res.missing_keys) == str(['_fc.weight', '_fc.bias']), 'issue loading pretrained weights'
+        if str(res.missing_keys) != str(['_fc.weight', '_fc.bias']):
+            raise AssertionError('issue loading pretrained weights')
     print('Loaded pretrained weights for {}'.format(model_name))
