@@ -55,7 +55,7 @@ def create_csv_files(output_folder):
 	
 	crowds = 0
 	test_crowds = 0
-	for key in annotations_dict.keys():
+	for key in annotations_dict:
 		if key in train_images:
 			num_of_boxes = len(annotations_dict[key])
 			for index in range(num_of_boxes):
