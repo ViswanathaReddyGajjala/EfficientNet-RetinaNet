@@ -45,7 +45,7 @@ def coco_to_csv(images_path, annotation_path, output_folder):
             column_name = ['filename', 'xmin', 'ymin', 'xmax', 'ymax', 'class']
             
             #If image exists locally
-            if os.path.isfile(path + json_data['assets'][key]['asset']['name']) ==True:
+            if os.path.isfile(path + json_data['assets'][key]['asset']['name']) is True:
                
                 #for every 5 images 1 image is taken as a val image
                 if count%5==0:
@@ -98,7 +98,7 @@ def coco_to_csv(images_path, annotation_path, output_folder):
                 image_not_exists +=1
         else:
             images_without_boxes+=1
-            if os.path.isfile(path + json_data['assets'][key]['asset']['name']) ==True:
+            if os.path.isfile(path + json_data['assets'][key]['asset']['name']) is True:
                 images_without_boxes_image_exists +=1
               
     if not os.path.exists(output_folder):
