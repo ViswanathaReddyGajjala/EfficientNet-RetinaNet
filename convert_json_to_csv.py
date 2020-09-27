@@ -1,6 +1,5 @@
 import json
 import random
-import os
 
 def get_annotations(metadata):
 	r"""
