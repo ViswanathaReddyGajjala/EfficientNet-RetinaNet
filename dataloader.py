@@ -1,16 +1,12 @@
 from __future__ import print_function, division
 import sys
-import os
 import torch
 import numpy as np
 import random
 import csv
 
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, utils
+from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
-
-from pycocotools.coco import COCO
 
 import skimage.io
 import skimage.transform
