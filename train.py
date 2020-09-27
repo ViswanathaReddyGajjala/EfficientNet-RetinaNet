@@ -76,7 +76,7 @@ def train(args):
         scheduler.step(np.mean(epoch_loss))	
         torch.save(retinanet.module, '{}_retinanet_{}_map{}.pt'.format("EfficientNet" +model_type, epoch_num, MAP))
         retinanet.eval()
-        torch.save(retinanet, 'model_final.pt'.format(epoch_num))
+        torch.save(retinanet, 'model_final.pt')
   
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
