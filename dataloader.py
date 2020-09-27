@@ -73,8 +73,7 @@ class CSVDataset(Dataset):
         """
         if sys.version_info[0] < 3:
             return open(path, 'rb')
-        else:
-            return open(path, 'r', newline='')
+        return open(path, 'r', newline='')
 
 
     def load_classes(self, csv_reader):
@@ -347,8 +346,7 @@ class AspectRatioBasedSampler(Sampler):
     def __len__(self):
         if self.drop_last:
             return len(self.data_source) // self.batch_size
-        else:
-            return (len(self.data_source) + self.batch_size - 1) // self.batch_size
+        return (len(self.data_source) + self.batch_size - 1) // self.batch_size
 
     def group_images(self):
         # determine the order of the images
