@@ -9,8 +9,7 @@ Created on Wed Jul  3 12:04:18 2019
 import torch.nn as nn
 import torch
 import math
-import time
-from utils import BasicBlock, Bottleneck, BBoxTransform, ClipBoxes
+from utils import BBoxTransform, ClipBoxes
 from anchors import Anchors
 import losses
 #from lib.nms.gpu_nms import gpu_nms
