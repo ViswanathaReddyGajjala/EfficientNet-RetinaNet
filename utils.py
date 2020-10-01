@@ -122,8 +122,9 @@ class ClipBoxes(nn.Module):
 
     def __init__(self, width=None, height=None):
         super(ClipBoxes, self).__init__()
-
-    def forward(self, boxes, img):
+        
+    @staticmethod
+    def forward(boxes, img):
 
         #batch_size, num_channels, height, width = img.shape
         _, _, height, width = img.shape
