@@ -19,7 +19,7 @@ import time
 import cv2
 import argparse
 
-class Resize_Img(object):
+class Resize_Img():
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, img, min_side=608, max_side=1024):
