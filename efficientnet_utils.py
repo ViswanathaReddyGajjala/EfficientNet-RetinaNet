@@ -129,10 +129,7 @@ class Conv2dStaticSamePadding(nn.Conv2d):
 
 
 class Identity(nn.Module):
-    def __init__(self,):
-        super(Identity, self).__init__()
-
-    def forward(self, input):
+    def forward(input):
         return input
 
 
