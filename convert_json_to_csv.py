@@ -35,7 +35,8 @@ def create_csv_files(output_folder):
 	rev_label_map = {v: k for k, v in label_map.items()} # Inverse mapping
 
 	data = json.load(open('master-coco/coco.json'))
-	annotations_dict, count = get_annotations(data)
+	#annotations_dict, count = get_annotations(data)
+	annotations_dict, _ = get_annotations(data)
 	data = []
 	keys = list(annotations_dict.keys())
 	print ("Total images::", len(keys))
@@ -52,8 +53,8 @@ def create_csv_files(output_folder):
 	train_data = []
 	test_data = []
 	
-	crowds = 0
-	test_crowds = 0
+	#crowds = 0
+	#test_crowds = 0
 	for key in annotations_dict:
 		if key in train_images:
 			num_of_boxes = len(annotations_dict[key])
