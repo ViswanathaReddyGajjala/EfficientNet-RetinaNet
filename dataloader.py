@@ -234,7 +234,7 @@ def collater(data):
 
     return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}
 
-class Resizer(object):
+class Resizer():
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, min_side=608, max_side=1024):
@@ -269,7 +269,7 @@ class Resizer(object):
         return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
 
-class Augmenter(object):
+class Augmenter():
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, flip_x=0.5):
@@ -293,7 +293,7 @@ class Augmenter(object):
         return sample
 
 
-class Normalizer(object):
+class Normalizer():
 
     def __init__(self):
         self.mean = np.array([[[0.485, 0.456, 0.406]]])
@@ -305,7 +305,7 @@ class Normalizer(object):
 
         return {'img':((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
 
-class UnNormalizer(object):
+class UnNormalizer():
     def __init__(self, mean=None, std=None):
         if mean is None:
             self.mean = [0.485, 0.456, 0.406]
