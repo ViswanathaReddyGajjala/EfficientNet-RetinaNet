@@ -104,14 +104,13 @@ def create_csv_files(output_folder):
 	#train_data = data[400:]
 	#if not os.path.exists(output_folder):
 	#	os.makedirs(output_folder, exist_ok=True)
-        
+	
 	train_df = pd.DataFrame(train_data)
 	test_df = pd.DataFrame(test_data)
 	print("Train data::",train_df.shape, " Test data::", test_df.shape)
 	#print (train_df.head())
 	train_df.to_csv((output_folder + '/train' + '_labels.csv'), index=None, header=None)
 	test_df.to_csv((output_folder + '/test' + '_labels.csv'), index=None, header=None)
-  
 	return
 	
 create_csv_files('dataset')
