@@ -123,7 +123,7 @@ class CSVDataset(Dataset):
             return annotations
 
         # parse annotations
-        for idx, a in enumerate(annotation_list):
+        for _, a in enumerate(annotation_list):
             # some annotations have basically no width / height, skip them
             x1 = a['x1']
             x2 = a['x2']
@@ -276,7 +276,7 @@ class Augmenter(object):
             image, annots = sample['img'], sample['annot']
             image = image[:, ::-1, :]
 
-            rows, cols, channels = image.shape
+            _, cols, _ = image.shape
 
             x1 = annots[:, 0].copy()
             x2 = annots[:, 2].copy()
