@@ -162,7 +162,8 @@ class ClassificationModel(nn.Module):
         # out is B x C x W x H, with C = n_classes + n_anchors
         out1 = out.permute(0, 2, 3, 1)
 
-        batch_size, width, height, channels = out1.shape
+        #batch_size, width, height, channels = out1.shape
+        batch_size, width, height, _ = out1.shape
 
         out2 = out1.view(batch_size, width, height, self.num_anchors, self.num_classes)
 
@@ -228,7 +229,8 @@ class RetinaNet(nn.Module):
         else:
             img_batch = inputs
         
-        final_out, C3, C4, C5 = self.efficientnet(img_batch)
+        #final_out, C3, C4, C5 = self.efficientnet(img_batch)
+        _, C3, C4, C5 = self.efficientnet(img_batch)
         features = self.fpn([C3, C4, C5])
         
         regression = torch.cat([self.regressionModel(feature) for feature in features], dim=1)
