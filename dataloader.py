@@ -48,8 +48,9 @@ class CSVDataset(Dataset):
         except ValueError as e:
             raise(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)), None)
         self.image_names = list(self.image_data.keys())
-
-    def _parse(self, value, function, fmt):
+        
+    @staticmethod
+    def _parse(value, function, fmt):
         """
         Parse a string into a value, and format a nice ValueError if it fails.
         Returns `function(value)`.
@@ -60,8 +61,9 @@ class CSVDataset(Dataset):
             return function(value)
         except ValueError as e:
             raise(ValueError(fmt.format(e)), None)
-
-    def _open_for_csv(self, path):
+            
+    @staticmethod
+    def _open_for_csv(path):
         """
         Open a file with flags suitable for csv.reader.
         This is different for python2 it means with mode 'rb',
