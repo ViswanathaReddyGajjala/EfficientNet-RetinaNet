@@ -42,7 +42,7 @@ def coco_to_csv(images_path, annotation_path, output_folder):
             width = json_data['assets'][key]['asset']['size']['width']
             height = json_data['assets'][key]['asset']['size']['height']
             # Column names for the csv file
-            column_name = ['filename', 'xmin', 'ymin', 'xmax', 'ymax', 'class']
+            #column_name = ['filename', 'xmin', 'ymin', 'xmax', 'ymax', 'class']
             
             #If image exists locally
             if os.path.isfile(path + json_data['assets'][key]['asset']['name']) is True:
@@ -149,7 +149,7 @@ def append_new_data_to_csv(images_path, annotation_path, output_folder):
     
     try:
       json_data = json.load(open(json_file))
-    except FileNotFoundError as e:
+    except:
       continue;
       
     # For every 5 images one image is val image
