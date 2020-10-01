@@ -149,8 +149,8 @@ def append_new_data_to_csv(images_path, annotation_path, output_folder):
     
     try:
       json_data = json.load(open(json_file))
-    except:
-      continue;
+    except FileNotFoundError:
+      continue
       
     # For every 5 images one image is val image
     if count%5 == 0:
