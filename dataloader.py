@@ -139,7 +139,7 @@ class CSVDataset(Dataset):
         Returns:
             [numpy array]: [image]
         """
-        #img = skimage.io.imread(self.image_names[image_index])
+        # img = skimage.io.imread(self.image_names[image_index])
         
         img = cv2.imread(self.image_names[image_index])
         if len(img.shape) == 2:
@@ -224,9 +224,9 @@ class CSVDataset(Dataset):
             y2 = self._parse(y2, float, 'line {}: malformed y2: {{}}'.format(line))
 
             # Check that the bounding box is valid.
-            #if x2 <= x1:
+            # if x2 <= x1:
             #    raise ValueError('line {}: x2 ({}) must be higher than x1 ({})'.format(line, x2, x1))
-            #if y2 <= y1:
+            # if y2 <= y1:
             #    raise ValueError('line {}: y2 ({}) must be higher than y1 ({})'.format(line, y2, y1))
 
             # check if the current class name is correctly present
@@ -313,7 +313,7 @@ def collater(data):
 
         if max_num_annots > 0:
             for idx, annot in enumerate(annots):
-                #print(annot.shape)
+                # print(annot.shape)
                 if annot.shape[0] > 0:
                     annot_padded[idx, :annot.shape[0], :] = annot
     else:
