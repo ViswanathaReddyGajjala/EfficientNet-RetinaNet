@@ -36,7 +36,7 @@ class CSVDataset(Dataset):
             with self._open_for_csv(self.class_list) as file:
                 self.classes = self.load_classes(csv.reader(file, delimiter=','))
         except ValueError as e:
-            raise(ValueError('invalid CSV class file: {}: {}'.format(self.class_list, e)))
+            raise ValueError('invalid CSV class file: {}: {}'.format(self.class_list, e))
 
         self.labels = {}
         for key, value in self.classes.items():
@@ -47,9 +47,9 @@ class CSVDataset(Dataset):
             with self._open_for_csv(self.train_file) as file:
                 self.image_data = self._read_annotations(csv.reader(file, delimiter=','), self.classes)
         except ValueError as e:
-            raise(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)))
+            raise ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e))
         self.image_names = list(self.image_data.keys())
-    
+
     @staticmethod
     def _parse(value, function, fmt):
         """
@@ -61,7 +61,7 @@ class CSVDataset(Dataset):
         try:
             return function(value)
         except ValueError as e:
-            raise(ValueError(fmt.format(e)))
+            raise ValueError(fmt.format(e))
 
     @staticmethod
     def _open_for_csv(path):
@@ -94,7 +94,7 @@ class CSVDataset(Dataset):
             try:
                 class_name, class_id = row
             except ValueError:
-                raise (ValueError('line {}: format should be \'class_name,class_id\''.format(line)))
+                raise ValueError('line {}: format should be \'class_name,class_id\''.format(line))
             class_id = self._parse(class_id, int, 'line {}: malformed class ID: {{}}'.format(line))
 
             if class_name in result:
@@ -157,7 +157,7 @@ class CSVDataset(Dataset):
         """
         # get ground truth annotations
         annotation_list = self.image_data[self.image_names[image_index]]
-        annotations     = np.zeros((0, 5))
+        annotations = np.zeros((0, 5))
 
         # some images appear to miss annotations (like image with id 257034)
         if len(annotation_list) == 0:
@@ -174,15 +174,15 @@ class CSVDataset(Dataset):
             if (x2-x1) < 1 or (y2-y1) < 1:
                 continue
 
-            annotation        = np.zeros((1, 5))
+            annotation = np.zeros((1, 5))
 
             annotation[0, 0] = x1
             annotation[0, 1] = y1
             annotation[0, 2] = x2
             annotation[0, 3] = y2
 
-            annotation[0, 4]  = self.name_to_label(a['class'])
-            annotations       = np.append(annotations, annotation, axis=0)
+            annotation[0, 4] = self.name_to_label(a['class'])
+            annotations = np.append(annotations, annotation, axis=0)
 
         return annotations
 
@@ -208,7 +208,7 @@ class CSVDataset(Dataset):
             try:
                 img_file, x1, y1, x2, y2, class_name = row[:6]
             except ValueError:
-                raise (ValueError('line {}: format should be \'img_file,x1,y1,x2,y2,class_name\' or \'img_file,,,,,\''.format(line)))
+                raise ValueError('line {}: format should be \'img_file,x1,y1,x2,y2,class_name\' or \'img_file,,,,,\''.format(line))
 
             if img_file not in result:
                 result[img_file] = []
@@ -224,10 +224,10 @@ class CSVDataset(Dataset):
 
             # Check that the bounding box is valid.
             # if x2 <= x1:
-            #    raise ValueError('line {}: x2 ({}) must be higher 
+            #    raise ValueError('line {}: x2 ({}) must be higher
             #                       than x1 ({})'.format(line, x2, x1))
             # if y2 <= y1:
-            #    raise ValueError('line {}: y2 ({}) must be higher 
+            #    raise ValueError('line {}: y2 ({}) must be higher
             #                       than y1 ({})'.format(line, y2, y1))
 
             # check if the current class name is correctly present
@@ -341,7 +341,7 @@ class Resizer():
             max_side (int, optional): [height of the image]. Defaults to 1024.
 
         Returns:
-            [dict]: [contains resized image and image annotations. 
+            [dict]: [contains resized image and image annotations.
                         scale that used for resizing]
         """
         image, annots = sample['img'], sample['annot']
