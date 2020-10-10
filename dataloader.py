@@ -234,10 +234,10 @@ class CSVDataset(Dataset):
                 raise ValueError('line {}: unknown class name: \'{}\' (classes: {})'.format(line, class_name, classes))
 
             result[img_file].append({'x1': x1,
-                                        'x2': x2,
-                                        'y1': y1, 
-                                        'y2': y2,
-                                        'class': class_name})
+                                    'x2': x2,
+                                    'y1': y1,
+                                    'y2': y2,
+                                    'class': class_name})
         return result
 
     def name_to_label(self, name):
@@ -360,8 +360,8 @@ class Resizer():
 
         # resize the image with the computed scale
         image = skimage.transform.resize(image,
-                                            (int(round(rows*scale)),
-                                            int(round((cols*scale)))))
+                                        (int(round(rows*scale)),
+                                        int(round((cols*scale)))))
         rows, cols, cns = image.shape
 
         pad_w = 32 - rows%32
