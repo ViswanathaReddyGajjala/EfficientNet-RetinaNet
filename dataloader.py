@@ -233,8 +233,8 @@ class CSVDataset(Dataset):
             if class_name not in classes:
                 raise ValueError('line {}: unknown class name: \'{}\' (classes: {})'.format(line, class_name, classes))
 
-            result[img_file].append({'x1': x1, 
-                                        'x2': x2, 
+            result[img_file].append({'x1': x1,
+                                        'x2': x2,
                                         'y1': y1, 
                                         'y2': y2,
                                         'class': class_name})
@@ -359,8 +359,8 @@ class Resizer():
             scale = max_side / largest_side
 
         # resize the image with the computed scale
-        image = skimage.transform.resize(image, 
-                                            (int(round(rows*scale)), 
+        image = skimage.transform.resize(image,
+                                            (int(round(rows*scale)),
                                             int(round((cols*scale)))))
         rows, cols, cns = image.shape
 
@@ -372,8 +372,8 @@ class Resizer():
 
         annots[:, :4] *= scale
 
-        return {'img': torch.from_numpy(new_image), 
-                'annot': torch.from_numpy(annots), 
+        return {'img': torch.from_numpy(new_image),
+                'annot': torch.from_numpy(annots),
                 'scale': scale}
 
 
