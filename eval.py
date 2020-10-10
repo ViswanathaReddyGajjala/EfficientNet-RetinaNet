@@ -57,7 +57,7 @@ def _compute_ap(recall, precision):
     return ap
 
 
-def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100, save_path=None):
+def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100):
     """ Get the detections from the retinanet using the generator.
     The result is a list of lists such that the size is:
         all_detections[num_images][num_classes] = detections[num_detections, 4 + num_classes]
