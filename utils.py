@@ -3,6 +3,7 @@ import torch.nn as nn
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 class BBoxTransform(nn.Module):
     """[summary]"""
 
@@ -34,10 +35,10 @@ class BBoxTransform(nn.Module):
             [tensor]: [description]
         """
 
-        widths  = boxes[:, :, 2] - boxes[:, :, 0]
+        widths = boxes[:, :, 2] - boxes[:, :, 0]
         heights = boxes[:, :, 3] - boxes[:, :, 1]
-        ctr_x   = boxes[:, :, 0] + 0.5 * widths
-        ctr_y   = boxes[:, :, 1] + 0.5 * heights
+        ctr_x = boxes[:, :, 0] + 0.5 * widths
+        ctr_y = boxes[:, :, 1] + 0.5 * heights
 
         dx = deltas[:, :, 0] * self.std[0] + self.mean[0]
         dy = deltas[:, :, 1] * self.std[1] + self.mean[1]
@@ -46,8 +47,8 @@ class BBoxTransform(nn.Module):
 
         pred_ctr_x = ctr_x + dx * widths
         pred_ctr_y = ctr_y + dy * heights
-        pred_w     = torch.exp(dw) * widths
-        pred_h     = torch.exp(dh) * heights
+        pred_w = torch.exp(dw) * widths
+        pred_h = torch.exp(dh) * heights
 
         pred_boxes_x1 = pred_ctr_x - 0.5 * pred_w
         pred_boxes_y1 = pred_ctr_y - 0.5 * pred_h
