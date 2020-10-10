@@ -3,84 +3,16 @@ import torch.nn as nn
 import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def conv3x3(in_planes, out_planes, stride=1):
-    """3x3 convolution with padding"""
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
-                     padding=1, bias=False)
-
-class BasicBlock(nn.Module):
-    expansion = 1
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
-        super(BasicBlock, self).__init__()
-        self.conv1 = conv3x3(inplanes, planes, stride)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(planes, planes)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out += residual
-        out = self.relu(out)
-
-        return out
-
-
-class Bottleneck(nn.Module):
-    expansion = 4
-
-    def __init__(self, inplanes, planes, stride=1, downsample=None):
-        super(Bottleneck, self).__init__()
-        self.conv1 = nn.Conv2d(inplanes, planes, kernel_size=1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
-        self.conv2 = nn.Conv2d(planes, planes, kernel_size=3, stride=stride,
-                               padding=1, bias=False)
-        self.bn2 = nn.BatchNorm2d(planes)
-        self.conv3 = nn.Conv2d(planes, planes * 4, kernel_size=1, bias=False)
-        self.bn3 = nn.BatchNorm2d(planes * 4)
-        self.relu = nn.ReLU(inplace=True)
-        self.downsample = downsample
-        self.stride = stride
-
-    def forward(self, x):
-        residual = x
-
-        out = self.conv1(x)
-        out = self.bn1(out)
-        out = self.relu(out)
-
-        out = self.conv2(out)
-        out = self.bn2(out)
-        out = self.relu(out)
-
-        out = self.conv3(out)
-        out = self.bn3(out)
-
-        if self.downsample is not None:
-            residual = self.downsample(x)
-
-        out += residual
-        out = self.relu(out)
-
-        return out
-
 class BBoxTransform(nn.Module):
+    """[summary]"""
 
     def __init__(self, mean=None, std=None):
+        """[summary]
+
+        Args:
+            mean ([type], optional): [description]. Defaults to None.
+            std ([type], optional): [description]. Defaults to None.
+        """
         super(BBoxTransform, self).__init__()
         if mean is None:
             self.mean = torch.from_numpy(np.array([0, 0, 0, 0]).astype(np.float32)).to(device)
@@ -92,6 +24,15 @@ class BBoxTransform(nn.Module):
             self.std = std
 
     def forward(self, boxes, deltas):
+        """computes the output coordinates
+
+        Args:
+            boxes ([tensor]): [description]
+            deltas ([tensor]): [description]
+
+        Returns:
+            [tensor]: [description]
+        """
 
         widths  = boxes[:, :, 2] - boxes[:, :, 0]
         heights = boxes[:, :, 3] - boxes[:, :, 1]
@@ -119,14 +60,24 @@ class BBoxTransform(nn.Module):
 
 
 class ClipBoxes(nn.Module):
+    """[summary]"""
 
-    def __init__(self, width=None, height=None):
+    def __init__(self):
+        """[summary]"""
         super(ClipBoxes, self).__init__()
         
     @staticmethod
     def forward(boxes, img):
+        """[clips the box coordinates]
 
-        #batch_size, num_channels, height, width = img.shape
+        Args:
+            boxes ([tensor]): [bounding box coordinates]
+            img ([tensor]): [image tensor]
+
+        Returns:
+            [type]: [description]
+        """
+        # batch_size, num_channels, height, width = img.shape
         _, _, height, width = img.shape
 
         boxes[:, :, 0] = torch.clamp(boxes[:, :, 0], min=0)
