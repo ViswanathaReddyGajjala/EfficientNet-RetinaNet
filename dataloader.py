@@ -49,7 +49,7 @@ class CSVDataset(Dataset):
         except ValueError as e:
             raise(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)))
         self.image_names = list(self.image_data.keys())
-        
+    
     @staticmethod
     def _parse(value, function, fmt):
         """
@@ -62,7 +62,7 @@ class CSVDataset(Dataset):
             return function(value)
         except ValueError as e:
             raise(ValueError(fmt.format(e)))
-            
+           
     @staticmethod
     def _open_for_csv(path):
         """
@@ -73,7 +73,6 @@ class CSVDataset(Dataset):
         if sys.version_info[0] < 3:
             return open(path, 'rb')
         return open(path, 'r', newline='')
-
 
     def load_classes(self, csv_reader):
         """[summary]
@@ -102,7 +101,6 @@ class CSVDataset(Dataset):
                 raise ValueError('line {}: duplicate class name: \'{}\''.format(line, class_name))
             result[class_name] = class_id
         return result
-
 
     def __len__(self):
         """[summary]
@@ -140,7 +138,7 @@ class CSVDataset(Dataset):
             [numpy array]: [image]
         """
         # img = skimage.io.imread(self.image_names[image_index])
-        
+
         img = cv2.imread(self.image_names[image_index])
         if len(img.shape) == 2:
             img = skimage.color.gray2rgb(img)
@@ -176,7 +174,7 @@ class CSVDataset(Dataset):
                 continue
 
             annotation        = np.zeros((1, 5))
-            
+
             annotation[0, 0] = x1
             annotation[0, 1] = y1
             annotation[0, 2] = x2
@@ -295,7 +293,7 @@ def collater(data):
     imgs = [s['img'] for s in data]
     annots = [s['annot'] for s in data]
     scales = [s['scale'] for s in data]
-        
+    
     widths = [int(s.shape[0]) for s in imgs]
     heights = [int(s.shape[1]) for s in imgs]
     batch_size = len(imgs)
@@ -310,7 +308,7 @@ def collater(data):
         padded_imgs[i, :int(img.shape[0]), :int(img.shape[1]), :] = img
 
     max_num_annots = max(annot.shape[0] for annot in annots)
-    
+
     if max_num_annots > 0:
 
         annot_padded = torch.ones((len(annots), max_num_annots, 5)) * -1
@@ -322,7 +320,6 @@ def collater(data):
                     annot_padded[idx, :annot.shape[0], :] = annot
     else:
         annot_padded = torch.ones((len(annots), 1, 5)) * -1
-
 
     padded_imgs = padded_imgs.permute(0, 3, 1, 2)
 
@@ -400,7 +397,7 @@ class Augmenter():
 
             x1 = annots[:, 0].copy()
             x2 = annots[:, 2].copy()
-                        
+
             x_tmp = x1.copy()
 
             annots[:, 0] = cols - x2
