@@ -403,11 +403,9 @@ class Augmenter():
 
 
 class Normalizer():
-    """[image normalization]
-    """
+    """[image normalization]"""
     def __init__(self):
-        """[summary]
-        """
+        """[summary]"""
         self.mean = np.array([[[0.485, 0.456, 0.406]]])
         self.std = np.array([[[0.229, 0.224, 0.225]]])
 
@@ -425,8 +423,7 @@ class Normalizer():
         return {'img':((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
 
 class UnNormalizer():
-    """[summary]
-    """
+    """[summary]"""
     def __init__(self, mean=None, std=None):
         """[summary]
 
