@@ -328,6 +328,7 @@ def collater(data):
 
     return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}
 
+
 class Resizer():
     """Convert ndarrays in sample to Tensors."""
 
@@ -399,7 +400,7 @@ class Augmenter():
 
             x1 = annots[:, 0].copy()
             x2 = annots[:, 2].copy()
-            
+                        
             x_tmp = x1.copy()
 
             annots[:, 0] = cols - x2
@@ -429,6 +430,7 @@ class Normalizer():
         image, annots = sample['img'], sample['annot']
 
         return {'img':((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
+
 
 class UnNormalizer():
     """[summary]"""
