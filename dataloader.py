@@ -4,6 +4,7 @@ import torch
 import numpy as np
 import random
 import csv
+import cv2
 
 from torch.utils.data import Dataset
 from torch.utils.data.sampler import Sampler
@@ -35,7 +36,7 @@ class CSVDataset(Dataset):
             with self._open_for_csv(self.class_list) as file:
                 self.classes = self.load_classes(csv.reader(file, delimiter=','))
         except ValueError as e:
-            raise(ValueError('invalid CSV class file: {}: {}'.format(self.class_list, e)), None)
+            raise(ValueError('invalid CSV class file: {}: {}'.format(self.class_list, e)))
 
         self.labels = {}
         for key, value in self.classes.items():
@@ -46,7 +47,7 @@ class CSVDataset(Dataset):
             with self._open_for_csv(self.train_file) as file:
                 self.image_data = self._read_annotations(csv.reader(file, delimiter=','), self.classes)
         except ValueError as e:
-            raise(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)), None)
+            raise(ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e)))
         self.image_names = list(self.image_data.keys())
         
     @staticmethod
@@ -60,7 +61,7 @@ class CSVDataset(Dataset):
         try:
             return function(value)
         except ValueError as e:
-            raise(ValueError(fmt.format(e)), None)
+            raise(ValueError(fmt.format(e)))
             
     @staticmethod
     def _open_for_csv(path):
@@ -75,6 +76,17 @@ class CSVDataset(Dataset):
 
 
     def load_classes(self, csv_reader):
+        """[summary]
+
+        Args:
+            csv_reader ([type]): [description]
+
+        Raises:
+            ValueError: [if the annotation format is wrong]
+
+        Returns:
+            [dict]: [contains clas_name and the respective id]
+        """
         result = {}
 
         for line, row in enumerate(csv_reader):
@@ -83,7 +95,7 @@ class CSVDataset(Dataset):
             try:
                 class_name, class_id = row
             except ValueError:
-                raise (ValueError('line {}: format should be \'class_name,class_id\''.format(line)), None)
+                raise (ValueError('line {}: format should be \'class_name,class_id\''.format(line)))
             class_id = self._parse(class_id, int, 'line {}: malformed class ID: {{}}'.format(line))
 
             if class_name in result:
@@ -93,9 +105,22 @@ class CSVDataset(Dataset):
 
 
     def __len__(self):
+        """[summary]
+
+        Returns:
+            [int]: [total number of images]
+        """
         return len(self.image_names)
 
     def __getitem__(self, idx):
+        """[summary]
+
+        Args:
+            idx ([int]): [retrieves the image at the respective index]
+
+        Returns:
+            [dict]: [{'img': img, 'annot': annot}]
+        """
 
         img = self.load_image(idx)
         annot = self.load_annotations(idx)
@@ -106,9 +131,16 @@ class CSVDataset(Dataset):
         return sample
 
     def load_image(self, image_index):
+        """[summary]
+
+        Args:
+            image_index ([int]): [retrieves the image at the respective index]
+
+        Returns:
+            [numpy array]: [image]
+        """
         #img = skimage.io.imread(self.image_names[image_index])
         
-        import cv2
         img = cv2.imread(self.image_names[image_index])
         if len(img.shape) == 2:
             img = skimage.color.gray2rgb(img)
@@ -116,6 +148,14 @@ class CSVDataset(Dataset):
         return img.astype(np.float32)/255.0
 
     def load_annotations(self, image_index):
+        """[summary]
+
+        Args:
+            image_index ([int]): [retrieves the image annotations at the respective index]
+
+        Returns:
+            [list]: [image annotations]
+        """
         # get ground truth annotations
         annotation_list = self.image_data[self.image_names[image_index]]
         annotations     = np.zeros((0, 5))
@@ -148,6 +188,20 @@ class CSVDataset(Dataset):
         return annotations
 
     def _read_annotations(self, csv_reader, classes):
+        """[summary]
+
+        Args:
+            csv_reader ([type]): [description]
+            classes ([type]): [description]
+
+        Raises:
+            ValueError: [description]
+            ValueError: [description]
+            ValueError: [description]
+
+        Returns:
+            [type]: [description]
+        """
         result = {}
         for line, row in enumerate(csv_reader):
             line += 1
@@ -183,21 +237,57 @@ class CSVDataset(Dataset):
         return result
 
     def name_to_label(self, name):
+        """maps class name to id
+
+        Args:
+            name ([str]): [class name]
+
+        Returns:
+            [int]: [class id]
+        """
         return self.classes[name]
 
     def label_to_name(self, label):
+        """[maps class id to class name]
+
+        Args:
+            label ([int]): [class id]
+
+        Returns:
+            [str]: [class name]
+        """
         return self.labels[label]
 
     def num_classes(self):
+        """total number of classes + background
+
+        Returns:
+            [int]: [total number of class]
+        """
         return max(self.classes.values()) + 1
 
     def image_aspect_ratio(self, image_index):
+        """computes the aspect ratio for the image at the given index.
+
+        Args:
+            image_index ([int]): []
+
+        Returns:
+            [float]: [image aspect ratio]
+        """
         image = Image.open(self.image_names[image_index])
         return float(image.width) / float(image.height)
 
 
 def collater(data):
+    """[summary]
 
+    Args:
+        data ([dict]): [description]
+
+    Returns:
+        [dict]: [description]
+    """
     imgs = [s['img'] for s in data]
     annots = [s['annot'] for s in data]
     scales = [s['scale'] for s in data]
@@ -238,6 +328,16 @@ class Resizer():
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, min_side=608, max_side=1024):
+        """[summary]
+
+        Args:
+            sample ([dict]): [contains image and image annotations]
+            min_side (int, optional): [width of the image]. Defaults to 608.
+            max_side (int, optional): [height of the image]. Defaults to 1024.
+
+        Returns:
+            [dict]: [contains resized image and image annotations. scale that used for resizing]
+        """
         image, annots = sample['img'], sample['annot']
 
         rows, cols, cns = image.shape
@@ -273,6 +373,15 @@ class Augmenter():
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, flip_x=0.5):
+        """[horizontal flip]
+
+        Args:
+            sample ([dict]): [contains image and image annotations]
+            flip_x (float, optional): [probability to flip an image]. Defaults to 0.5.
+
+        Returns:
+            [dict]: [contains transformed image and image annotations]
+        """
 
         if np.random.rand() < flip_x:
             image, annots = sample['img'], sample['annot']
@@ -294,19 +403,37 @@ class Augmenter():
 
 
 class Normalizer():
-
+    """[image normalization]
+    """
     def __init__(self):
+        """[summary]
+        """
         self.mean = np.array([[[0.485, 0.456, 0.406]]])
         self.std = np.array([[[0.229, 0.224, 0.225]]])
 
     def __call__(self, sample):
+        """[summary]
 
+        Args:
+            sample ([dict]): [contains image and image annotations]
+
+        Returns:
+            [dict]: [normalized image and image annotations]
+        """
         image, annots = sample['img'], sample['annot']
 
         return {'img':((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
 
 class UnNormalizer():
+    """[summary]
+    """
     def __init__(self, mean=None, std=None):
+        """[summary]
+
+        Args:
+            mean ([list], optional): [description]. Defaults to None.
+            std ([list], optional): [description]. Defaults to None.
+        """
         if mean is None:
             self.mean = [0.485, 0.456, 0.406]
         else:
@@ -329,7 +456,11 @@ class UnNormalizer():
 
 
 class AspectRatioBasedSampler(Sampler):
+    """[summary]
 
+    Args:
+        Sampler ([type]): [description]
+    """
     def __init__(self, data_source, batch_size, drop_last):
         self.data_source = data_source
         self.batch_size = batch_size
