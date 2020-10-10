@@ -62,7 +62,7 @@ class CSVDataset(Dataset):
             return function(value)
         except ValueError as e:
             raise(ValueError(fmt.format(e)))
-           
+
     @staticmethod
     def _open_for_csv(path):
         """
@@ -149,7 +149,8 @@ class CSVDataset(Dataset):
         """[summary]
 
         Args:
-            image_index ([int]): [retrieves the image annotations at the respective index]
+            image_index ([int]): [retrieves the image annotations
+                                    at the respective index]
 
         Returns:
             [list]: [image annotations]
@@ -223,9 +224,11 @@ class CSVDataset(Dataset):
 
             # Check that the bounding box is valid.
             # if x2 <= x1:
-            #    raise ValueError('line {}: x2 ({}) must be higher than x1 ({})'.format(line, x2, x1))
+            #    raise ValueError('line {}: x2 ({}) must be higher 
+            #                       than x1 ({})'.format(line, x2, x1))
             # if y2 <= y1:
-            #    raise ValueError('line {}: y2 ({}) must be higher than y1 ({})'.format(line, y2, y1))
+            #    raise ValueError('line {}: y2 ({}) must be higher 
+            #                       than y1 ({})'.format(line, y2, y1))
 
             # check if the current class name is correctly present
             if class_name not in classes:
@@ -293,7 +296,7 @@ def collater(data):
     imgs = [s['img'] for s in data]
     annots = [s['annot'] for s in data]
     scales = [s['scale'] for s in data]
-    
+
     widths = [int(s.shape[0]) for s in imgs]
     heights = [int(s.shape[1]) for s in imgs]
     batch_size = len(imgs)
@@ -338,7 +341,8 @@ class Resizer():
             max_side (int, optional): [height of the image]. Defaults to 1024.
 
         Returns:
-            [dict]: [contains resized image and image annotations. scale that used for resizing]
+            [dict]: [contains resized image and image annotations. 
+                        scale that used for resizing]
         """
         image, annots = sample['img'], sample['annot']
 
@@ -362,8 +366,8 @@ class Resizer():
                                         int(round((cols*scale)))))
         rows, cols, cns = image.shape
 
-        pad_w = 32 - rows%32
-        pad_h = 32 - cols%32
+        pad_w = 32 - rows % 32
+        pad_h = 32 - cols % 32
 
         new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
         new_image[:rows, :cols, :] = image.astype(np.float32)
@@ -426,7 +430,7 @@ class Normalizer():
         """
         image, annots = sample['img'], sample['annot']
 
-        return {'img':((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
+        return {'img': ((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
 
 
 class UnNormalizer():
