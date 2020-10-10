@@ -12,23 +12,37 @@ import math
 from utils import BBoxTransform, ClipBoxes
 from anchors import Anchors
 import losses
-#from lib.nms.gpu_nms import gpu_nms
 from efficientnet_model import EfficientNet
 from torchvision.ops import nms as NMS
 
+
 def nms(dets, thresh):
+    """[summary]
+
+    Args:
+        dets ([tensor]): [bounding boxes]
+        thresh ([float]): [threshold for nms]
+
+    Returns:
+        [tensor]: [description]
+    """
     boxes   = dets[:, :4]
     scores  = dets[:, -1]
     return NMS(boxes, scores, thresh)
-'''
-def nms(dets, thresh):
-    "Dispatch to either CPU or GPU NMS implementations.\
-    Accept dets as tensor"""
-    dets = dets.cpu().numpy()
-    return gpu_nms(dets, thresh)
-'''
+
+
 class PyramidFeatures(nn.Module):
+    """[summary]"""
     def __init__(self, C3_size, C4_size, C5_size, feature_size=256):
+        """[summary]
+
+        Args:
+            C3_size ([int]): [description]
+            C4_size ([int]): [description]
+            C5_size ([int]): [description]
+            feature_size (int, optional): [num channels
+                                            for layer in FPN]. Defaults to 256.
+        """
         super(PyramidFeatures, self).__init__()
         
         # upsample C5 to get P5 from the FPN paper
@@ -55,7 +69,14 @@ class PyramidFeatures(nn.Module):
         self.P7_2 = nn.Conv2d(feature_size, feature_size, kernel_size=3, stride=2, padding=1)
 
     def forward(self, inputs):
+        """[summary]
 
+        Args:
+            inputs ([list]): [features from the backbone]
+
+        Returns:
+            [list]: [FPN features]
+        """
         C3, C4, C5 = inputs
 
         P5_x = self.P5_1(C5)
@@ -82,7 +103,15 @@ class PyramidFeatures(nn.Module):
 
 
 class RegressionModel(nn.Module):
+    """[summary]"""
     def __init__(self, num_features_in, num_anchors=9, feature_size=256):
+        """[summary]
+
+        Args:
+            num_features_in ([int]): [input channels]
+            num_anchors (int, optional): [description]. Defaults to 9.
+            feature_size (int, optional): [description]. Defaults to 256.
+        """
         super(RegressionModel, self).__init__()
         
         self.conv1 = nn.Conv2d(num_features_in, feature_size, kernel_size=3, padding=1)
@@ -100,7 +129,14 @@ class RegressionModel(nn.Module):
         self.output = nn.Conv2d(feature_size, num_anchors*4, kernel_size=3, padding=1)
 
     def forward(self, x):
+        """[summary]
 
+        Args:
+            x ([tensor]): [feature map]
+
+        Returns:
+            [tensor]: [regression outputs]
+        """
         out = self.conv1(x)
         out = self.act1(out)
 
@@ -120,8 +156,18 @@ class RegressionModel(nn.Module):
 
         return out.contiguous().view(out.shape[0], -1, 4)
 
+
 class ClassificationModel(nn.Module):
+    """[summary]"""
     def __init__(self, num_features_in, num_anchors=9, num_classes=80, feature_size=256):
+        """[summary]
+
+        Args:
+            num_features_in ([int]): [input channels]
+            num_anchors (int, optional): [description]. Defaults to 9.
+            num_classes (int, optional): [description]. Defaults to 80.
+            feature_size (int, optional): [description]. Defaults to 256.
+        """
         super(ClassificationModel, self).__init__()
 
         self.num_classes = num_classes
@@ -143,7 +189,14 @@ class ClassificationModel(nn.Module):
         self.output_act = nn.Sigmoid()
 
     def forward(self, x):
+        """[summary]
 
+        Args:
+            x ([tensor]): [feature map]
+
+        Returns:
+            [tensor]: [classification logits]
+        """
         out = self.conv1(x)
         out = self.act1(out)
 
@@ -170,10 +223,18 @@ class ClassificationModel(nn.Module):
         return out2.contiguous().view(x.shape[0], -1, self.num_classes)
 
 
-
 class RetinaNet(nn.Module):
+    """[summary]"""
 
     def __init__(self, num_classes, backbone_network, fpn_sizes):
+        """[summary]
+
+        Args:
+            num_classes ([int]): [description]
+            backbone_network ([str]): [description]
+            fpn_sizes ([list]): [number of channels
+                                    in each backbone feature map]
+        """
         self.inplanes = 64
         super(RetinaNet, self).__init__()
         #fpn_sizes = [160, 272, 448]
@@ -217,13 +278,13 @@ class RetinaNet(nn.Module):
     
 
     def freeze_bn(self):
-        '''Freeze BatchNorm layers.'''
+        """Freeze BatchNorm layers."""
         for layer in self.modules():
             if isinstance(layer, nn.BatchNorm2d):
                 layer.eval()
 
     def forward(self, inputs):
-
+        """[summary]"""
         if self.training:
             img_batch, annotations = inputs
         else:
@@ -263,6 +324,18 @@ class RetinaNet(nn.Module):
         return [nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]]
 
 def RetinaNet_efficientnet_b4(num_classes, model_type):
+    """[summary]
+
+    Args:
+        num_classes ([int]): [description]
+        model_type ([str]): [description]
+
+    Raises:
+        ValueError: [description]
+
+    Returns:
+        [torch model]: [description]
+    """
     
     if model_type == "b0":
       efficientnet = EfficientNet.from_pretrained('efficientnet-b0') 
@@ -291,7 +364,4 @@ def RetinaNet_efficientnet_b4(num_classes, model_type):
     else:
       raise ValueError('Unsupported model type, must be one of b0, b1, b2, b3, b4, b5')
     
-      
-    
     return model
-  
