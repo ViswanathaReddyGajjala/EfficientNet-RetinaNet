@@ -127,9 +127,20 @@ class Conv2dStaticSamePadding(nn.Conv2d):
         x = F.conv2d(x, self.weight, self.bias, self.stride, self.padding, self.dilation, self.groups)
         return x
 
-
+"""
 class Identity(nn.Module):
     def forward(input):
+        return input
+"""
+class Identity(nn.Module):
+    """[summary]"""
+    def __init__(self,):
+        """[summary]"""
+        super(Identity, self).__init__()
+
+    @staticmethod
+    def forward(input):
+        """[summary]"""
         return input
 
 
