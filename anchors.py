@@ -89,7 +89,6 @@ def anchors_for_shape(
     scales=None,
     strides=None,
     sizes=None,
-    shapes_callback=None,
 ):
 
     image_shapes = compute_shape(image_shape, pyramid_levels)
