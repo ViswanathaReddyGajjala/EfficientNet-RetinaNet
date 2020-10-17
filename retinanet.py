@@ -339,28 +339,28 @@ def RetinaNet_efficientnet_b4(num_classes, model_type):
     
     if model_type == "b0":
         efficientnet = EfficientNet.from_pretrained('efficientnet-b0') 
-        efficientnet.source_layer_indexes = [10,13]
-        model = RetinaNet(num_classes, efficientnet, [112,192,1280])
+        efficientnet.source_layer_indexes = [10, 13]
+        model = RetinaNet(num_classes, efficientnet, [112, 192, 1280])
     elif model_type == "b1":
         efficientnet = EfficientNet.from_pretrained('efficientnet-b1') 
-        efficientnet.source_layer_indexes = [15,21]
-        model = RetinaNet(num_classes, efficientnet, [112,320,1280])
+        efficientnet.source_layer_indexes = [15, 21]
+        model = RetinaNet(num_classes, efficientnet, [112, 320, 1280])
     elif model_type == "b2":
         efficientnet = EfficientNet.from_pretrained('efficientnet-b2') 
-        efficientnet.source_layer_indexes = [15,21]
-        model = RetinaNet(num_classes, efficientnet, [120,352,1408])
+        efficientnet.source_layer_indexes = [15, 21]
+        model = RetinaNet(num_classes, efficientnet, [120, 352, 1408])
     elif model_type == "b3":
         efficientnet = EfficientNet.from_pretrained('efficientnet-b3') 
-        efficientnet.source_layer_indexes = [17,24]
-        model = RetinaNet(num_classes, efficientnet, [136,384,1536])
+        efficientnet.source_layer_indexes = [17, 24]
+        model = RetinaNet(num_classes, efficientnet, [136, 384, 1536])
     elif model_type == 'b4':
         efficientnet = EfficientNet.from_pretrained('efficientnet-b4') 
-        efficientnet.source_layer_indexes = [21,29]
-        model = RetinaNet(num_classes, efficientnet, [160,272,1792])
+        efficientnet.source_layer_indexes = [21, 29]
+        model = RetinaNet(num_classes, efficientnet, [160, 272, 1792])
     elif model_type == 'b5':
         efficientnet = EfficientNet.from_pretrained('efficientnet-b5') 
-        efficientnet.source_layer_indexes = [26,37]
-        model = RetinaNet(num_classes, efficientnet, [176,512,2048])
+        efficientnet.source_layer_indexes = [26, 37]
+        model = RetinaNet(num_classes, efficientnet, [176, 512, 2048])
     else:
         raise ValueError('Unsupported model type, must be one of b0, b1, b2, b3, b4, b5')
     
