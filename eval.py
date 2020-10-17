@@ -99,9 +99,9 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
                 scores_sort = np.argsort(-scores)[:max_detections]
 
                 # select detections
-                image_boxes      = boxes[indices[scores_sort], :]
-                image_scores     = scores[scores_sort]
-                image_labels     = labels[indices[scores_sort]]
+                image_boxes = boxes[indices[scores_sort], :]
+                image_scores = scores[scores_sort]
+                image_labels = labels[indices[scores_sort]]
                 image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
 
                 # copy detections to all_detections
@@ -162,21 +162,21 @@ def evaluate(
 
     # gather all detections and annotations
 
-    all_detections     = _get_detections(generator, retinanet, score_threshold=score_threshold, max_detections=max_detections)
-    all_annotations    = _get_annotations(generator)
+    all_detections = _get_detections(generator, retinanet, score_threshold=score_threshold, max_detections=max_detections)
+    all_annotations = _get_annotations(generator)
 
     average_precisions = {}
 
     for label in range(generator.num_classes()):
         false_positives = np.zeros((0,))
-        true_positives  = np.zeros((0,))
-        scores          = np.zeros((0,))
+        true_positives = np.zeros((0,))
+        scores = np.zeros((0,))
         num_annotations = 0.0
 
         for i in range(len(generator)):
-            detections           = all_detections[i][label]
-            annotations          = all_annotations[i][label]
-            num_annotations     += annotations.shape[0]
+            detections = all_detections[i][label]
+            annotations = all_annotations[i][label]
+            num_annotations += annotations.shape[0]
             detected_annotations = []
 
             for d in detections:
@@ -184,20 +184,20 @@ def evaluate(
 
                 if annotations.shape[0] == 0:
                     false_positives = np.append(false_positives, 1)
-                    true_positives  = np.append(true_positives, 0)
+                    true_positives = np.append(true_positives, 0)
                     continue
 
-                overlaps            = compute_overlap(np.expand_dims(d, axis=0), annotations)
+                overlaps = compute_overlap(np.expand_dims(d, axis=0), annotations)
                 assigned_annotation = np.argmax(overlaps, axis=1)
-                max_overlap         = overlaps[0, assigned_annotation]
+                max_overlap = overlaps[0, assigned_annotation]
 
                 if max_overlap >= iou_threshold and assigned_annotation not in detected_annotations:
                     false_positives = np.append(false_positives, 0)
-                    true_positives  = np.append(true_positives, 1)
+                    true_positives = np.append(true_positives, 1)
                     detected_annotations.append(assigned_annotation)
                 else:
                     false_positives = np.append(false_positives, 1)
-                    true_positives  = np.append(true_positives, 0)
+                    true_positives = np.append(true_positives, 0)
 
         # no annotations -> AP for this class is 0 (is this correct?)
         if num_annotations == 0:
@@ -205,20 +205,20 @@ def evaluate(
             continue
 
         # sort by score
-        indices         = np.argsort(-scores)
+        indices = np.argsort(-scores)
         false_positives = false_positives[indices]
-        true_positives  = true_positives[indices]
+        true_positives = true_positives[indices]
 
         # compute false positives and true positives
         false_positives = np.cumsum(false_positives)
-        true_positives  = np.cumsum(true_positives)
+        true_positives = np.cumsum(true_positives)
 
         # compute recall and precision
-        recall    = true_positives / num_annotations
+        recall = true_positives / num_annotations
         precision = true_positives / np.maximum(true_positives + false_positives, np.finfo(np.float64).eps)
 
         # compute average precision
-        average_precision  = _compute_ap(recall, precision)
+        average_precision = _compute_ap(recall, precision)
         average_precisions[label] = average_precision, num_annotations
     
     print('\nmAP:')
