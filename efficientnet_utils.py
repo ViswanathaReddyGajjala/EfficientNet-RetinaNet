@@ -67,7 +67,8 @@ def round_repeats(repeats, global_params):
 
 def drop_connect(inputs, p, training):
     """ Drop connect. """
-    if not training: return inputs
+    if not training: 
+        return inputs
     batch_size = inputs.shape[0]
     keep_prob = 1 - p
     random_tensor = keep_prob
