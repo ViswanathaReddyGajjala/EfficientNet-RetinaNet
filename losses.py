@@ -121,7 +121,7 @@ class FocalLoss(nn.Module):
 
                 targets = targets/torch.Tensor([[0.1, 0.1, 0.2, 0.2]]).to(device)
                 
-                negative_indices = ~(positive_indices)
+                #negative_indices = ~(positive_indices)
                 '''
                 Use the below line if encountered with an error
                 negative_indices = 1 - positive_indices # For older Pytorch versions
