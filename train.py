@@ -72,7 +72,8 @@ def train(args):
             except Exception as e:
                 print(e)
                 continue
-        mAP, MAP  = evaluate(dataset_val, retinanet)
+        #mAP, MAP  = evaluate(dataset_val, retinanet)
+        _, MAP  = evaluate(dataset_val, retinanet)
         scheduler.step(np.mean(epoch_loss))	
         torch.save(retinanet.module, '{}_retinanet_{}_map{}.pt'.format("EfficientNet" +model_type, epoch_num, MAP))
         retinanet.eval()
