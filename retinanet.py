@@ -237,13 +237,13 @@ class RetinaNet(nn.Module):
         """
         self.inplanes = 64
         super(RetinaNet, self).__init__()
-        #fpn_sizes = [160, 272, 448]
-        #fpn_sizes = [56, 160, 448]
-        ##for b4
-        #fpn_sizes = [160, 272, 448]
+        # fpn_sizes = [160, 272, 448]
+        # fpn_sizes = [56, 160, 448]
+        # for b4
+        # fpn_sizes = [160, 272, 448]
         
-        ### for b0
-        #fpn_sizes = [112,192,1280]
+        # for b0
+        # fpn_sizes = [112,192,1280]
         self.fpn = PyramidFeatures(fpn_sizes[0], fpn_sizes[1], fpn_sizes[2])
 
         self.regressionModel = RegressionModel(256)
@@ -290,7 +290,7 @@ class RetinaNet(nn.Module):
         else:
             img_batch = inputs
         
-        #final_out, C3, C4, C5 = self.efficientnet(img_batch)
+        # final_out, C3, C4, C5 = self.efficientnet(img_batch)
         _, C3, C4, C5 = self.efficientnet(img_batch)
         features = self.fpn([C3, C4, C5])
         
