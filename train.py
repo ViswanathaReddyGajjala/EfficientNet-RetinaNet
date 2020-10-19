@@ -66,7 +66,9 @@ def train(args):
                 optimizer.step()
                 loss_hist.append(float(loss))
                 epoch_loss.append(float(loss))
-                print('Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(epoch_num, iter_num, float(classification_loss), float(regression_loss), np.mean(loss_hist)))
+                print('Epoch: {} | Iteration: {} | Classification loss: {:1.5f} | \
+                      Regression loss: {:1.5f} | Running loss: {:1.5f}'.format(epoch_num, iter_num,
+                                                                               float(classification_loss), float(regression_loss), np.mean(loss_hist)))
                 del classification_loss
                 del regression_loss
             except Exception as e:
@@ -75,16 +77,18 @@ def train(args):
         #mAP, MAP  = evaluate(dataset_val, retinanet)
         _, MAP  = evaluate(dataset_val, retinanet)
         scheduler.step(np.mean(epoch_loss))	
-        torch.save(retinanet.module, '{}_retinanet_{}_map{}.pt'.format("EfficientNet" +model_type, epoch_num, MAP))
+        torch.save(retinanet.module, '{}_retinanet_{}_map{}.pt'.format("EfficientNet" +model_type, 
+                                                                       epoch_num, MAP))
         retinanet.eval()
         torch.save(retinanet, 'model_final.pt')
   
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('train_csv',help='Path to train csv')
-    parser.add_argument('test_csv',help='Path to test csv')
+    parser.add_argument('train_csv', help='Path to train csv')
+    parser.add_argument('test_csv', help='Path to test csv')
     parser.add_argument('labels_csv', help='Path to class labels')
-    parser.add_argument('model_type', help='EfficientNet model type, must be one of ["b0", "b1", "b2", "b3", "b4", "b5"]',default="b4")
+    parser.add_argument('model_type', help='EfficientNet model type, \
+                        must be one of ["b0", "b1", "b2", "b3", "b4", "b5"]', default="b4")
     parser.add_argument('epochs', help='Number of epochs for training', type=int, default=100)
     parser.add_argument('batch_size', help='Batch size for training', type=int, default=1)
     args = parser.parse_args()
