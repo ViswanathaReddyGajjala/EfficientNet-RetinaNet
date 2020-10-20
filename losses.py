@@ -21,7 +21,7 @@ def calc_iou(a, b):
     return IoU
 
 class FocalLoss(nn.Module):
-    #def __init__(self):
+    # def __init__(self):
     
     @staticmethod
     def forward(classifications, regressions, anchors, annotations):
@@ -58,9 +58,6 @@ class FocalLoss(nn.Module):
             IoU = calc_iou(anchors[0, :, :], bbox_annotation[:, :4]) # num_anchors x num_annotations
 
             IoU_max, IoU_argmax = torch.max(IoU, dim=1) # num_anchors x 1
-
-            #import pdb
-            #pdb.set_trace()
 
             # compute the loss for classification
             targets = torch.ones(classification.shape) * -1
@@ -121,7 +118,7 @@ class FocalLoss(nn.Module):
 
                 targets = targets/torch.Tensor([[0.1, 0.1, 0.2, 0.2]]).to(device)
                 
-                #negative_indices = ~(positive_indices)
+                # negative_indices = ~(positive_indices)
                 '''
                 Use the below line if encountered with an error
                 negative_indices = 1 - positive_indices # For older Pytorch versions
