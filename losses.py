@@ -21,6 +21,7 @@ def calc_iou(a, b):
     return IoU
 
 class FocalLoss(nn.Module):
+    """focal loss"""
     # def __init__(self):
     
     @staticmethod
