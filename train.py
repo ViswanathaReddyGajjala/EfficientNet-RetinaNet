@@ -25,12 +25,18 @@ def train(args):
     epochs     = int(args.epochs)
     batch_size = int(args.batch_size)
     
-    dataset_train = CSVDataset(train_file=train_csv, class_list=labels_csv, transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
-    dataset_val = CSVDataset(train_file=test_csv, class_list=labels_csv, transform=transforms.Compose([Normalizer(), Resizer()]))
-    sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
+    dataset_train = CSVDataset(train_file=train_csv, class_list=labels_csv, 
+                               transform=transforms.Compose([Normalizer(), Augmenter(), Resizer()]))
+    dataset_val = CSVDataset(train_file=test_csv, class_list=labels_csv, 
+                             transform=transforms.Compose([Normalizer(), Resizer()]))
     
-    retinanet = RetinaNet_efficientnet_b4(num_classes=dataset_train.num_classes(), model_type=model_type)
+    sampler = AspectRatioBasedSampler(dataset_train, batch_size=batch_size, 
+                                      drop_last=False)
+    dataloader_train = DataLoader(dataset_train, num_workers=3, 
+                                  collate_fn=collater, batch_sampler=sampler)
+    
+    retinanet = RetinaNet_efficientnet_b4(num_classes=dataset_train.num_classes(), 
+                                          model_type=model_type)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     retinanet = retinanet.to(device)
@@ -54,8 +60,9 @@ def train(args):
         for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
-                #classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
-                classification_loss, regression_loss = retinanet([data['img'].to(device).float(), data['annot']])
+                # classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                classification_loss, regression_loss = retinanet([data['img'].to(device).float(), 
+                                                                  data['annot']])
                 classification_loss = classification_loss.mean()
                 regression_loss = regression_loss.mean()
                 loss = classification_loss + regression_loss
