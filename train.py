@@ -98,6 +98,6 @@ if __name__ == '__main__':
                         must be one of ["b0", "b1", "b2", "b3", "b4", "b5"]', default="b4")
     parser.add_argument('epochs', help='Number of epochs for training', type=int, default=100)
     parser.add_argument('batch_size', help='Batch size for training', type=int, default=1)
-    args = parser.parse_args()
+    arguments = parser.parse_args()
     
-    train(args)
+    train(arguments)
