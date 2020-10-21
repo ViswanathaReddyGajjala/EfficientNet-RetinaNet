@@ -19,6 +19,7 @@ import time
 import cv2
 import argparse
 
+
 class Resize_Img():
     """Convert ndarrays in sample to Tensors."""
 
@@ -51,14 +52,15 @@ class Resize_Img():
 
 
         return {'img': torch.from_numpy(new_image), 'scale': scale}
-    
+
+
 def collat(data):
     imgs = data
     widths = [int(s.shape[0]) for s in imgs]
     heights = [int(s.shape[1]) for s in imgs]
     batch_size = 1
 
-    #print (batch_size)
+    # print (batch_size)
     max_width = np.array(widths).max()
     max_height = np.array(heights).max()
 
@@ -73,11 +75,13 @@ def collat(data):
 
     return padded_imgs
 
+
 def draw_caption(image, box, caption):
 
   b = np.array(box).astype(int)
   cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
   cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+
 
 def visualize(args):
     model_path = args.model_path
@@ -89,7 +93,6 @@ def visualize(args):
     label_map = {k: v + 1 for v, k in enumerate(custom_labels)}
     label_map['background'] = 0
     rev_label_map = {v: k for k, v in label_map.items()} # Inverse mapping
-    
     
     if use_gpu:
       retinanet = retinanet.cuda()
@@ -136,14 +139,15 @@ def visualize(args):
         print(label_name, x1, y1, x2, y2)
     
       cv2.imwrite('out.png', img)
-      
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     parser.add_argument('model_path',help='Path to the trained model')
     parser.add_argument('image_path',help='Path to test image')
     parser.add_argument('use_gpu', help='True if gpu is available')
-    args = parser.parse_args()
+    arguments = parser.parse_args()
     
-    visualize(args)
+    visualize(arguments)
     
