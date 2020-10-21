@@ -323,6 +323,7 @@ class RetinaNet(nn.Module):
 
         return [nms_scores, nms_class, transformed_anchors[0, anchors_nms_idx, :]]
 
+
 def RetinaNet_efficientnet_b4(num_classes, model_type):
     """[summary]
 
