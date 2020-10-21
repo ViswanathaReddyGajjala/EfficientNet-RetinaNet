@@ -1,4 +1,5 @@
 import json
+import pandas as pd
 import random
 
 def get_annotations(metadata):
@@ -28,7 +29,6 @@ def get_annotations(metadata):
 	return annotations_dict, missing_annotation_count
 	
 def create_csv_files(output_folder):
-	import pandas as pd
 	custom_labels = {'cobia'}
 	label_map = {k: v + 1 for v, k in enumerate(custom_labels)}
 	label_map['background'] = 0
@@ -111,6 +111,5 @@ def create_csv_files(output_folder):
 	#print (train_df.head())
 	train_df.to_csv((output_folder + '/train' + '_labels.csv'), index=None, header=None)
 	test_df.to_csv((output_folder + '/test' + '_labels.csv'), index=None, header=None)
-	return
 	
 create_csv_files('dataset')
