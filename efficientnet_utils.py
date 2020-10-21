@@ -85,6 +85,7 @@ def get_same_padding_conv2d(image_size=None):
         return Conv2dDynamicSamePadding
     return partial(Conv2dStaticSamePadding, image_size=image_size)
 
+
 class Conv2dDynamicSamePadding(nn.Conv2d):
     """ 2D Convolutions like TensorFlow, for a dynamic image size """
     def __init__(self, in_channels, out_channels, kernel_size, stride=1, dilation=1, groups=1, bias=True):
@@ -133,6 +134,8 @@ class Identity(nn.Module):
     def forward(input):
         return input
 """
+
+
 class Identity(nn.Module):
     """[summary]"""
     def __init__(self,):
@@ -309,6 +312,7 @@ url_map = {
     'efficientnet-b6': 'https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b6-c76e70fd.pth',
     'efficientnet-b7': 'https://github.com/lukemelas/EfficientNet-PyTorch/releases/download/1.0/efficientnet-b7-dcc49843.pth',
 }
+
 
 def load_pretrained_weights(model, model_name, load_fc=True):
     """ Loads pretrained weights, and downloads if loading for the first time. """
