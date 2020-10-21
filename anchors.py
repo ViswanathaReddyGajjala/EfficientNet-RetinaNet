@@ -4,6 +4,7 @@ import torch.nn as nn
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 class Anchors(nn.Module):
     def __init__(self, pyramid_levels=None, strides=None, sizes=None, ratios=None, scales=None):
         super(Anchors, self).__init__()
@@ -29,7 +30,8 @@ class Anchors(nn.Module):
         all_anchors = np.zeros((0, 4)).astype(np.float32)
 
         for idx, _ in enumerate(self.pyramid_levels):
-            anchors         = generate_anchors(base_size=self.sizes[idx], ratios=self.ratios, scales=self.scales)
+            anchors         = generate_anchors(base_size=self.sizes[idx], 
+                                               ratios=self.ratios, scales=self.scales)
             shifted_anchors = shift(image_shapes[idx], self.strides[idx], anchors)
             all_anchors     = np.append(all_anchors, shifted_anchors, axis=0)
 
@@ -37,6 +39,7 @@ class Anchors(nn.Module):
 
         return torch.from_numpy(all_anchors.astype(np.float32)).to(device)
 
+    
 def generate_anchors(base_size=16, ratios=None, scales=None):
     """
     Generate anchor (reference) windows by enumerating aspect ratios X
@@ -69,6 +72,7 @@ def generate_anchors(base_size=16, ratios=None, scales=None):
     anchors[:, 1::2] -= np.tile(anchors[:, 3] * 0.5, (2, 1)).T
 
     return anchors
+
 
 def compute_shape(image_shape, pyramid_levels):
     """Compute shapes based on pyramid levels.
