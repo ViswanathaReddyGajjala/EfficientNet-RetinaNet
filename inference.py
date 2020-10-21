@@ -77,10 +77,9 @@ def collat(data):
 
 
 def draw_caption(image, box, caption):
-
-  b = np.array(box).astype(int)
-  cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
-  cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+    b = np.array(box).astype(int)
+    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
+    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
 
 
 def visualize(args):
@@ -95,50 +94,50 @@ def visualize(args):
     rev_label_map = {v: k for k, v in label_map.items()} # Inverse mapping
     
     if use_gpu:
-      retinanet = retinanet.cuda()
+        retinanet = retinanet.cuda()
       
     unnormalize = UnNormalizer()
     retinanet.eval()
     
     with torch.no_grad():
-      st = time.time();
-      img = cv2.imread(image_path)
-      img = img.astype(np.float32)/255.0
-      
-      mean = np.array([[[0.485, 0.456, 0.406]]])
-      std = np.array([[[0.229, 0.224, 0.225]]])
-      img = ((img.astype(np.float32)-mean)/std)
-      
-      image_resizer = Resize_Img()
-      img = image_resizer(img)['img']
-      
-      img = np.expand_dims(img, axis=0)
-      img = collat(img)
-      scores, classification, transformed_anchors = retinanet(img.cuda().float())
-      print('Elapsed time: {}'.format(time.time()-st))
-      idxs = np.where(scores.cpu()>0.5)
-      img = np.array(255 * unnormalize(img[0, :, :, :])).copy()
+        st = time.time();
+        img = cv2.imread(image_path)
+        img = img.astype(np.float32)/255.0
+
+        mean = np.array([[[0.485, 0.456, 0.406]]])
+        std = np.array([[[0.229, 0.224, 0.225]]])
+        img = ((img.astype(np.float32)-mean)/std)
+
+        image_resizer = Resize_Img()
+        img = image_resizer(img)['img']
+
+        img = np.expand_dims(img, axis=0)
+        img = collat(img)
+        scores, classification, transformed_anchors = retinanet(img.cuda().float())
+        print('Elapsed time: {}'.format(time.time()-st))
+        idxs = np.where(scores.cpu()>0.5)
+        img = np.array(255 * unnormalize(img[0, :, :, :])).copy()
+
+        img[img<0] = 0
+        img[img>255] = 255
+
+        img = np.transpose(img, (1, 2, 0))
+
+        img = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_BGR2RGB)
     
-      img[img<0] = 0
-      img[img>255] = 255
-    
-      img = np.transpose(img, (1, 2, 0))
-    
-      img = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_BGR2RGB)
-    
-      for j in range(idxs[0].shape[0]):
-        bbox = transformed_anchors[idxs[0][j], :]
-        x1 = int(bbox[0])
-        y1 = int(bbox[1])
-        x2 = int(bbox[2])
-        y2 = int(bbox[3])
-        label_name = rev_label_map[int(classification[idxs[0][j]])]
-        draw_caption(img, (x1, y1, x2, y2), label_name)
-    
-        cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
-        print(label_name, x1, y1, x2, y2)
-    
-      cv2.imwrite('out.png', img)
+        for j in range(idxs[0].shape[0]):
+            bbox = transformed_anchors[idxs[0][j], :]
+            x1 = int(bbox[0])
+            y1 = int(bbox[1])
+            x2 = int(bbox[2])
+            y2 = int(bbox[3])
+            label_name = rev_label_map[int(classification[idxs[0][j]])]
+            draw_caption(img, (x1, y1, x2, y2), label_name)
+
+            cv2.rectangle(img, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
+            print(label_name, x1, y1, x2, y2)
+
+        cv2.imwrite('out.png', img)
 
 
 if __name__ == '__main__':
