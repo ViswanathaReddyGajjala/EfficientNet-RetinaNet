@@ -27,12 +27,12 @@ def get_annotations(metadata):
             missing_annotation_count += 1
             annotations_dict[image_id] = []
     return annotations_dict, missing_annotation_count
-	
+
+
 def create_csv_files(output_folder):
     """[summary]
-
-    Args:
-        output_folder ([str]): [description]
+    	Args:
+	output_folder ([str]): [description]
     """
     custom_labels = {'cobia'}
     label_map = {k: v + 1 for v, k in enumerate(custom_labels)}
@@ -40,13 +40,13 @@ def create_csv_files(output_folder):
     rev_label_map = {v: k for k, v in label_map.items()} # Inverse mapping
 
     data = json.load(open('master-coco/coco.json'))
-    #annotations_dict, count = get_annotations(data)
+    # annotations_dict, count = get_annotations(data)
     annotations_dict, _ = get_annotations(data)
     data = []
     keys = list(annotations_dict.keys())
     print ("Total images::", len(keys))
 
-    #for key in keys:
+    # for key in keys:
     #	if len(annotations_dict[key])>=10:
     #		print (key)
 
@@ -58,8 +58,8 @@ def create_csv_files(output_folder):
     train_data = []
     test_data = []
 
-    #crowds = 0
-    #test_crowds = 0
+    # crowds = 0
+    # test_crowds = 0
     for key in annotations_dict:
         if key in train_images:
             num_of_boxes = len(annotations_dict[key])
@@ -69,7 +69,7 @@ def create_csv_files(output_folder):
                 label    = rev_label_map[label_id]
                 bbox     = annotations_dict[key][index]['bbox']
                 x, y, w, h = bbox
-                #print (x,y,w,h)
+                # print (x,y,w,h)
                 xmax  = w+x
                 ymax  = h+y
                 value = (img_path,
@@ -102,18 +102,18 @@ def create_csv_files(output_folder):
                         label)
                 test_data.append(value)
         
-    #random.shuffle(data)
-    #print (crowds, test_crowds)
+    # random.shuffle(data)
+    # print (crowds, test_crowds)
 
-    #test_data = data[:400]
-    #train_data = data[400:]
-    #if not os.path.exists(output_folder):
+    # test_data = data[:400]
+    # train_data = data[400:]
+    # if not os.path.exists(output_folder):
     #	os.makedirs(output_folder, exist_ok=True)
 
     train_df = pd.DataFrame(train_data)
     test_df = pd.DataFrame(test_data)
     print("Train data::",train_df.shape, " Test data::", test_df.shape)
-    #print (train_df.head())
+    # print (train_df.head())
     train_df.to_csv((output_folder + '/train' + '_labels.csv'), index=None, header=None)
     test_df.to_csv((output_folder + '/test' + '_labels.csv'), index=None, header=None)
 
