@@ -103,3 +103,9 @@ For example:
 dog,1
 cat,2
 ```
+
+## Tasks
+  - [ ] Add support for multi-scale training 
+  - [ ] Add augmentations
+  - [ ] Anchor generation using KMeans Clustering
+  - [ ] Look into CutMix augmentation
