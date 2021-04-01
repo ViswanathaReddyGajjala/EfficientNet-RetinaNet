@@ -329,24 +329,43 @@ def collater(data):
     return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}
 
 
-class Resizer():
-    """Convert ndarrays in sample to Tensors."""
+class Resizer(object):
+    """[summary]"""
+    def __init__(self, is_test=False, multi_scale=False, p=0.7):
+        """[summary]
 
-    def __call__(self, sample, min_side=608, max_side=1024):
+        Args:
+            is_test (bool, optional): [train/test phase]. Defaults to False.
+            multi_scale (bool, optional): [enable/disable multi scale during training]. Defaults to False.
+            p (float, optional): [probability to use multi_scale]. Defaults to 0.7.
+        """
+        self.is_test = is_test
+        self.p = p
+        self.multi_scale = multi_scale
+        
+        
+    def __call__(self, sample):
         """[summary]
 
         Args:
             sample ([dict]): [contains image and image annotations]
-            min_side (int, optional): [width of the image]. Defaults to 608.
-            max_side (int, optional): [height of the image]. Defaults to 1024.
 
         Returns:
             [dict]: [contains resized image and image annotations.
                         scale that used for resizing]
         """
         image, annots = sample['img'], sample['annot']
-
+        min_side = 608
+        max_side = 1024
+        
+        if self.multi_scale and (not self.is_test) and np.random.rand() < self.p:
+            min_side = random.choice([32*20, 32*21, 32*22, 32*23, 32*24, 32*25])
+            # max_side = random.choice([32*20, 32*21, 32*22, 32*23, 32*24, 32*25])
+            max_side_scale = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+            max_side = min_side + (32 * max_side_scale)
+            
         rows, cols, cns = image.shape
+        # min_size = random.sa
 
         smallest_side = min(rows, cols)
 
@@ -361,22 +380,21 @@ class Resizer():
             scale = max_side / largest_side
 
         # resize the image with the computed scale
-        image = skimage.transform.resize(image,
-                                        (int(round(rows*scale)),
-                                        int(round((cols*scale)))))
+        image = skimage.transform.resize(image, (int(round(rows*scale)), int(round((cols*scale)))))
         rows, cols, cns = image.shape
 
-        pad_w = 32 - rows % 32
-        pad_h = 32 - cols % 32
+        pad_w, pad_h = 0, 0
+        if rows % 32 != 0:
+            pad_w = 32 - rows%32
+        if cols % 32 != 0:
+            pad_h = 32 - cols%32
 
         new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
         new_image[:rows, :cols, :] = image.astype(np.float32)
 
         annots[:, :4] *= scale
 
-        return {'img': torch.from_numpy(new_image),
-                'annot': torch.from_numpy(annots),
-                'scale': scale}
+        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
 
 
 class Augmenter():
