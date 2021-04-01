@@ -103,9 +103,22 @@ For example:
 dog,1
 cat,2
 ```
+### Multi scale Training 
+* To enable multi-scale training change `Resize()` to `Resize(is_test=False, multi_scale=True, p=0.7)` in `train.py(line 29)`
+    ```python
+    Resize(is_test=False, multi_scale=True, p=0.7)
+        During training phase
+            is_test = False
+            multi_scale = True
+            p = 0.7(the test image size will be used 30% of the time)
+            
+        During testing phase
+            is_test=True
+
+    ```
 
 ## Tasks
-  - [ ] Add support for multi-scale training 
+  - [x] Add support for multi-scale training 
   - [ ] Add augmentations
   - [ ] Anchor generation using KMeans Clustering
   - [ ] Look into CutMix augmentation
