@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -16,11 +17,15 @@ class BBoxTransform(nn.Module):
         """
         super(BBoxTransform, self).__init__()
         if mean is None:
-            self.mean = torch.from_numpy(np.array([0, 0, 0, 0]).astype(np.float32)).to(device)
+            self.mean = torch.from_numpy(np.array([0, 0, 0, 0]).astype(np.float32)).to(
+                device
+            )
         else:
             self.mean = mean
         if std is None:
-            self.std = torch.from_numpy(np.array([0.1, 0.1, 0.2, 0.2]).astype(np.float32)).to(device)
+            self.std = torch.from_numpy(
+                np.array([0.1, 0.1, 0.2, 0.2]).astype(np.float32)
+            ).to(device)
         else:
             self.std = std
 
@@ -55,7 +60,9 @@ class BBoxTransform(nn.Module):
         pred_boxes_x2 = pred_ctr_x + 0.5 * pred_w
         pred_boxes_y2 = pred_ctr_y + 0.5 * pred_h
 
-        pred_boxes = torch.stack([pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2], dim=2)
+        pred_boxes = torch.stack(
+            [pred_boxes_x1, pred_boxes_y1, pred_boxes_x2, pred_boxes_y2], dim=2
+        )
 
         return pred_boxes
 
@@ -66,7 +73,7 @@ class ClipBoxes(nn.Module):
     def __init__(self):
         """[summary]"""
         super(ClipBoxes, self).__init__()
-        
+
     @staticmethod
     def forward(boxes, img):
         """[clips the box coordinates]
@@ -86,5 +93,5 @@ class ClipBoxes(nn.Module):
 
         boxes[:, :, 2] = torch.clamp(boxes[:, :, 2], max=width)
         boxes[:, :, 3] = torch.clamp(boxes[:, :, 3], max=height)
-      
+
         return boxes
