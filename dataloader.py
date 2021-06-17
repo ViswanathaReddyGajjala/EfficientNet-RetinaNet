@@ -34,9 +34,11 @@ class CSVDataset(Dataset):
         # parse the provided class file
         try:
             with self._open_for_csv(self.class_list) as file:
-                self.classes = self.load_classes(csv.reader(file, delimiter=','))
+                self.classes = self.load_classes(csv.reader(file, delimiter=","))
         except ValueError as e:
-            raise ValueError('invalid CSV class file: {}: {}'.format(self.class_list, e))
+            raise ValueError(
+                "invalid CSV class file: {}: {}".format(self.class_list, e)
+            )
 
         self.labels = {}
         for key, value in self.classes.items():
@@ -45,9 +47,13 @@ class CSVDataset(Dataset):
         # csv with img_path, x1, y1, x2, y2, class_name
         try:
             with self._open_for_csv(self.train_file) as file:
-                self.image_data = self._read_annotations(csv.reader(file, delimiter=','), self.classes)
+                self.image_data = self._read_annotations(
+                    csv.reader(file, delimiter=","), self.classes
+                )
         except ValueError as e:
-            raise ValueError('invalid CSV annotations file: {}: {}'.format(self.train_file, e))
+            raise ValueError(
+                "invalid CSV annotations file: {}: {}".format(self.train_file, e)
+            )
         self.image_names = list(self.image_data.keys())
 
     @staticmethod
@@ -71,8 +77,8 @@ class CSVDataset(Dataset):
         for python3 this means 'r' with "universal newlines".
         """
         if sys.version_info[0] < 3:
-            return open(path, 'rb')
-        return open(path, 'r', newline='')
+            return open(path, "rb")
+        return open(path, "r", newline="")
 
     def load_classes(self, csv_reader):
         """[summary]
@@ -94,11 +100,17 @@ class CSVDataset(Dataset):
             try:
                 class_name, class_id = row
             except ValueError:
-                raise ValueError('line {}: format should be \'class_name,class_id\''.format(line))
-            class_id = self._parse(class_id, int, 'line {}: malformed class ID: {{}}'.format(line))
+                raise ValueError(
+                    "line {}: format should be 'class_name,class_id'".format(line)
+                )
+            class_id = self._parse(
+                class_id, int, "line {}: malformed class ID: {{}}".format(line)
+            )
 
             if class_name in result:
-                raise ValueError('line {}: duplicate class name: \'{}\''.format(line, class_name))
+                raise ValueError(
+                    "line {}: duplicate class name: '{}'".format(line, class_name)
+                )
             result[class_name] = class_id
         return result
 
@@ -122,7 +134,7 @@ class CSVDataset(Dataset):
 
         img = self.load_image(idx)
         annot = self.load_annotations(idx)
-        sample = {'img': img, 'annot': annot}
+        sample = {"img": img, "annot": annot}
         if self.transform:
             sample = self.transform(sample)
 
@@ -143,7 +155,7 @@ class CSVDataset(Dataset):
         if len(img.shape) == 2:
             img = skimage.color.gray2rgb(img)
 
-        return img.astype(np.float32)/255.0
+        return img.astype(np.float32) / 255.0
 
     def load_annotations(self, image_index):
         """[summary]
@@ -166,12 +178,12 @@ class CSVDataset(Dataset):
         # parse annotations
         for _, a in enumerate(annotation_list):
             # some annotations have basically no width / height, skip them
-            x1 = a['x1']
-            x2 = a['x2']
-            y1 = a['y1']
-            y2 = a['y2']
+            x1 = a["x1"]
+            x2 = a["x2"]
+            y1 = a["y1"]
+            y2 = a["y2"]
 
-            if (x2-x1) < 1 or (y2-y1) < 1:
+            if (x2 - x1) < 1 or (y2 - y1) < 1:
                 continue
 
             annotation = np.zeros((1, 5))
@@ -181,7 +193,7 @@ class CSVDataset(Dataset):
             annotation[0, 2] = x2
             annotation[0, 3] = y2
 
-            annotation[0, 4] = self.name_to_label(a['class'])
+            annotation[0, 4] = self.name_to_label(a["class"])
             annotations = np.append(annotations, annotation, axis=0)
 
         return annotations
@@ -208,19 +220,23 @@ class CSVDataset(Dataset):
             try:
                 img_file, x1, y1, x2, y2, class_name = row[:6]
             except ValueError:
-                raise ValueError('line {}: format should be \'img_file,x1,y1,x2,y2,class_name\' or \'img_file,,,,,\''.format(line))
+                raise ValueError(
+                    "line {}: format should be 'img_file,x1,y1,x2,y2,class_name' or 'img_file,,,,,'".format(
+                        line
+                    )
+                )
 
             if img_file not in result:
                 result[img_file] = []
 
             # If a row contains only an image path, it's an image without annotations.
-            if (x1, y1, x2, y2, class_name) == ('', '', '', '', ''):
+            if (x1, y1, x2, y2, class_name) == ("", "", "", "", ""):
                 continue
 
-            x1 = self._parse(x1, float, 'line {}: malformed x1: {{}}'.format(line))
-            y1 = self._parse(y1, float, 'line {}: malformed y1: {{}}'.format(line))
-            x2 = self._parse(x2, float, 'line {}: malformed x2: {{}}'.format(line))
-            y2 = self._parse(y2, float, 'line {}: malformed y2: {{}}'.format(line))
+            x1 = self._parse(x1, float, "line {}: malformed x1: {{}}".format(line))
+            y1 = self._parse(y1, float, "line {}: malformed y1: {{}}".format(line))
+            x2 = self._parse(x2, float, "line {}: malformed x2: {{}}".format(line))
+            y2 = self._parse(y2, float, "line {}: malformed y2: {{}}".format(line))
 
             # Check that the bounding box is valid.
             # if x2 <= x1:
@@ -232,13 +248,15 @@ class CSVDataset(Dataset):
 
             # check if the current class name is correctly present
             if class_name not in classes:
-                raise ValueError('line {}: unknown class name: \'{}\' (classes: {})'.format(line, class_name, classes))
+                raise ValueError(
+                    "line {}: unknown class name: '{}' (classes: {})".format(
+                        line, class_name, classes
+                    )
+                )
 
-            result[img_file].append({'x1': x1,
-                                    'x2': x2,
-                                    'y1': y1,
-                                    'y2': y2,
-                                    'class': class_name})
+            result[img_file].append(
+                {"x1": x1, "x2": x2, "y1": y1, "y2": y2, "class": class_name}
+            )
         return result
 
     def name_to_label(self, name):
@@ -293,9 +311,9 @@ def collater(data):
     Returns:
         [dict]: [description]
     """
-    imgs = [s['img'] for s in data]
-    annots = [s['annot'] for s in data]
-    scales = [s['scale'] for s in data]
+    imgs = [s["img"] for s in data]
+    annots = [s["annot"] for s in data]
+    scales = [s["scale"] for s in data]
 
     widths = [int(s.shape[0]) for s in imgs]
     heights = [int(s.shape[1]) for s in imgs]
@@ -308,7 +326,7 @@ def collater(data):
 
     for i in range(batch_size):
         img = imgs[i]
-        padded_imgs[i, :int(img.shape[0]), :int(img.shape[1]), :] = img
+        padded_imgs[i, : int(img.shape[0]), : int(img.shape[1]), :] = img
 
     max_num_annots = max(annot.shape[0] for annot in annots)
 
@@ -320,17 +338,18 @@ def collater(data):
             for idx, annot in enumerate(annots):
                 # print(annot.shape)
                 if annot.shape[0] > 0:
-                    annot_padded[idx, :annot.shape[0], :] = annot
+                    annot_padded[idx, : annot.shape[0], :] = annot
     else:
         annot_padded = torch.ones((len(annots), 1, 5)) * -1
 
     padded_imgs = padded_imgs.permute(0, 3, 1, 2)
 
-    return {'img': padded_imgs, 'annot': annot_padded, 'scale': scales}
+    return {"img": padded_imgs, "annot": annot_padded, "scale": scales}
 
 
 class Resizer(object):
     """[summary]"""
+
     def __init__(self, is_test=False, multi_scale=False, p=0.7):
         """[summary]
 
@@ -342,8 +361,7 @@ class Resizer(object):
         self.is_test = is_test
         self.p = p
         self.multi_scale = multi_scale
-        
-        
+
     def __call__(self, sample):
         """[summary]
 
@@ -354,16 +372,42 @@ class Resizer(object):
             [dict]: [contains resized image and image annotations.
                         scale that used for resizing]
         """
-        image, annots = sample['img'], sample['annot']
+        image, annots = sample["img"], sample["annot"]
         min_side = 608
         max_side = 1024
-        
+
         if self.multi_scale and (not self.is_test) and np.random.rand() < self.p:
-            min_side = random.choice([32*20, 32*21, 32*22, 32*23, 32*24, 32*25])
+            min_side = random.choice(
+                [32 * 20, 32 * 21, 32 * 22, 32 * 23, 32 * 24, 32 * 25]
+            )
             # max_side = random.choice([32*20, 32*21, 32*22, 32*23, 32*24, 32*25])
-            max_side_scale = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+            max_side_scale = random.choice(
+                [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16,
+                    17,
+                    18,
+                    19,
+                    20,
+                ]
+            )
             max_side = min_side + (32 * max_side_scale)
-            
+
         rows, cols, cns = image.shape
         # min_size = random.sa
 
@@ -380,24 +424,30 @@ class Resizer(object):
             scale = max_side / largest_side
 
         # resize the image with the computed scale
-        image = skimage.transform.resize(image, (int(round(rows*scale)), int(round((cols*scale)))))
+        image = skimage.transform.resize(
+            image, (int(round(rows * scale)), int(round((cols * scale))))
+        )
         rows, cols, cns = image.shape
 
         pad_w, pad_h = 0, 0
         if rows % 32 != 0:
-            pad_w = 32 - rows%32
+            pad_w = 32 - rows % 32
         if cols % 32 != 0:
-            pad_h = 32 - cols%32
+            pad_h = 32 - cols % 32
 
         new_image = np.zeros((rows + pad_w, cols + pad_h, cns)).astype(np.float32)
         new_image[:rows, :cols, :] = image.astype(np.float32)
 
         annots[:, :4] *= scale
 
-        return {'img': torch.from_numpy(new_image), 'annot': torch.from_numpy(annots), 'scale': scale}
+        return {
+            "img": torch.from_numpy(new_image),
+            "annot": torch.from_numpy(annots),
+            "scale": scale,
+        }
 
 
-class Augmenter():
+class Augmenter:
     """Convert ndarrays in sample to Tensors."""
 
     def __call__(self, sample, flip_x=0.5):
@@ -412,7 +462,7 @@ class Augmenter():
         """
 
         if np.random.rand() < flip_x:
-            image, annots = sample['img'], sample['annot']
+            image, annots = sample["img"], sample["annot"]
             image = image[:, ::-1, :]
 
             _, cols, _ = image.shape
@@ -425,13 +475,14 @@ class Augmenter():
             annots[:, 0] = cols - x2
             annots[:, 2] = cols - x_tmp
 
-            sample = {'img': image, 'annot': annots}
+            sample = {"img": image, "annot": annots}
 
         return sample
 
 
-class Normalizer():
+class Normalizer:
     """[image normalization]"""
+
     def __init__(self):
         """[summary]"""
         self.mean = np.array([[[0.485, 0.456, 0.406]]])
@@ -446,13 +497,17 @@ class Normalizer():
         Returns:
             [dict]: [normalized image and image annotations]
         """
-        image, annots = sample['img'], sample['annot']
+        image, annots = sample["img"], sample["annot"]
 
-        return {'img': ((image.astype(np.float32)-self.mean)/self.std), 'annot': annots}
+        return {
+            "img": ((image.astype(np.float32) - self.mean) / self.std),
+            "annot": annots,
+        }
 
 
-class UnNormalizer():
+class UnNormalizer:
     """[summary]"""
+
     def __init__(self, mean=None, std=None):
         """[summary]
 
@@ -487,6 +542,7 @@ class AspectRatioBasedSampler(Sampler):
     Args:
         Sampler ([type]): [description]
     """
+
     def __init__(self, data_source, batch_size, drop_last):
         self.data_source = data_source
         self.batch_size = batch_size
@@ -509,4 +565,7 @@ class AspectRatioBasedSampler(Sampler):
         order.sort(key=lambda x: self.data_source.image_aspect_ratio(x))
 
         # divide into groups, one group = one batch
-        return [[order[x % len(order)] for x in range(i, i + self.batch_size)] for i in range(0, len(order), self.batch_size)]
+        return [
+            [order[x % len(order)] for x in range(i, i + self.batch_size)]
+            for i in range(0, len(order), self.batch_size)
+        ]

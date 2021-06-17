@@ -3,6 +3,8 @@ import numpy as np
 import torch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
 def compute_overlap(a, b):
     """
     Parameters
@@ -15,13 +17,21 @@ def compute_overlap(a, b):
     """
     area = (b[:, 2] - b[:, 0]) * (b[:, 3] - b[:, 1])
 
-    iw = np.minimum(np.expand_dims(a[:, 2], axis=1), b[:, 2]) - np.maximum(np.expand_dims(a[:, 0], 1), b[:, 0])
-    ih = np.minimum(np.expand_dims(a[:, 3], axis=1), b[:, 3]) - np.maximum(np.expand_dims(a[:, 1], 1), b[:, 1])
+    iw = np.minimum(np.expand_dims(a[:, 2], axis=1), b[:, 2]) - np.maximum(
+        np.expand_dims(a[:, 0], 1), b[:, 0]
+    )
+    ih = np.minimum(np.expand_dims(a[:, 3], axis=1), b[:, 3]) - np.maximum(
+        np.expand_dims(a[:, 1], 1), b[:, 1]
+    )
 
     iw = np.maximum(iw, 0)
     ih = np.maximum(ih, 0)
 
-    ua = np.expand_dims((a[:, 2] - a[:, 0]) * (a[:, 3] - a[:, 1]), axis=1) + area - iw * ih
+    ua = (
+        np.expand_dims((a[:, 2] - a[:, 0]) * (a[:, 3] - a[:, 1]), axis=1)
+        + area
+        - iw * ih
+    )
 
     ua = np.maximum(ua, np.finfo(float).eps)
 
@@ -31,7 +41,7 @@ def compute_overlap(a, b):
 
 
 def _compute_ap(recall, precision):
-    """ Compute the average precision, given the recall and precision curves.
+    """Compute the average precision, given the recall and precision curves.
     Code originally from https://github.com/rbgirshick/py-faster-rcnn.
     # Arguments
         recall:    The recall curve (list).
@@ -41,8 +51,8 @@ def _compute_ap(recall, precision):
     """
     # correct AP calculation
     # first append sentinel values at the end
-    mrec = np.concatenate(([0.], recall, [1.]))
-    mpre = np.concatenate(([0.], precision, [0.]))
+    mrec = np.concatenate(([0.0], recall, [1.0]))
+    mpre = np.concatenate(([0.0], precision, [0.0]))
 
     # compute the precision envelope
     for i in range(mpre.size - 1, 0, -1):
@@ -58,7 +68,7 @@ def _compute_ap(recall, precision):
 
 
 def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100):
-    """ Get the detections from the retinanet using the generator.
+    """Get the detections from the retinanet using the generator.
     The result is a list of lists such that the size is:
         all_detections[num_images][num_classes] = detections[num_detections, 4 + num_classes]
     # Arguments
@@ -70,21 +80,25 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
     # Returns
         A list of lists containing the detections for each image in the generator.
     """
-    all_detections = [[None for i in range(dataset.num_classes())] for j in range(len(dataset))]
+    all_detections = [
+        [None for i in range(dataset.num_classes())] for j in range(len(dataset))
+    ]
 
     retinanet.eval()
-    
+
     with torch.no_grad():
 
         for index in range(len(dataset)):
             data = dataset[index]
-            scale = data['scale']
+            scale = data["scale"]
 
             # run network
-            scores, labels, boxes = retinanet(data['img'].permute(2, 0, 1).to(device).float().unsqueeze(dim=0))
+            scores, labels, boxes = retinanet(
+                data["img"].permute(2, 0, 1).to(device).float().unsqueeze(dim=0)
+            )
             scores = scores.cpu().numpy()
             labels = labels.cpu().numpy()
-            boxes  = boxes.cpu().numpy()
+            boxes = boxes.cpu().numpy()
 
             # correct boxes for image scale
             boxes /= scale
@@ -102,23 +116,32 @@ def _get_detections(dataset, retinanet, score_threshold=0.05, max_detections=100
                 image_boxes = boxes[indices[scores_sort], :]
                 image_scores = scores[scores_sort]
                 image_labels = labels[indices[scores_sort]]
-                image_detections = np.concatenate([image_boxes, np.expand_dims(image_scores, axis=1), np.expand_dims(image_labels, axis=1)], axis=1)
+                image_detections = np.concatenate(
+                    [
+                        image_boxes,
+                        np.expand_dims(image_scores, axis=1),
+                        np.expand_dims(image_labels, axis=1),
+                    ],
+                    axis=1,
+                )
 
                 # copy detections to all_detections
                 for label in range(dataset.num_classes()):
-                    all_detections[index][label] = image_detections[image_detections[:, -1] == label, :-1]
+                    all_detections[index][label] = image_detections[
+                        image_detections[:, -1] == label, :-1
+                    ]
             else:
                 # copy detections to all_detections
                 for label in range(dataset.num_classes()):
                     all_detections[index][label] = np.zeros((0, 5))
 
-            print('{}/{}'.format(index + 1, len(dataset)), end='\r')
+            print("{}/{}".format(index + 1, len(dataset)), end="\r")
 
     return all_detections
 
 
 def _get_annotations(generator):
-    """ Get the ground truth annotations from the generator.
+    """Get the ground truth annotations from the generator.
     The result is a list of lists such that the size is:
         all_detections[num_images][num_classes] = annotations[num_detections, 5]
     # Arguments
@@ -126,7 +149,9 @@ def _get_annotations(generator):
     # Returns
         A list of lists containing the annotations for each image in the generator.
     """
-    all_annotations = [[None for i in range(generator.num_classes())] for j in range(len(generator))]
+    all_annotations = [
+        [None for i in range(generator.num_classes())] for j in range(len(generator))
+    ]
 
     for i in range(len(generator)):
         # load the annotations
@@ -134,25 +159,23 @@ def _get_annotations(generator):
 
         # copy detections to all_annotations
         for label in range(generator.num_classes()):
-            all_annotations[i][label] = annotations[annotations[:, 4] == label, :4].copy()
+            all_annotations[i][label] = annotations[
+                annotations[:, 4] == label, :4
+            ].copy()
 
-        print('{}/{}'.format(i + 1, len(generator)), end='\r')
+        print("{}/{}".format(i + 1, len(generator)), end="\r")
 
     return all_annotations
 
 
 def evaluate(
-    generator,
-    retinanet,
-    iou_threshold=0.5,
-    score_threshold=0.05,
-    max_detections=100
+    generator, retinanet, iou_threshold=0.5, score_threshold=0.05, max_detections=100
 ):
-    """ Evaluate a given dataset using a given retinanet.
+    """Evaluate a given dataset using a given retinanet.
     # Arguments
         generator       : The generator that represents the dataset to evaluate.
         retinanet           : The retinanet to evaluate.
-        iou_threshold   : The threshold used to consider when a 
+        iou_threshold   : The threshold used to consider when a
             detection is positive or negative.
         score_threshold : The score confidence threshold to use for detections.
         max_detections  : The maximum number of detections to use per image.
@@ -163,7 +186,12 @@ def evaluate(
 
     # gather all detections and annotations
 
-    all_detections = _get_detections(generator, retinanet, score_threshold=score_threshold, max_detections=max_detections)
+    all_detections = _get_detections(
+        generator,
+        retinanet,
+        score_threshold=score_threshold,
+        max_detections=max_detections,
+    )
     all_annotations = _get_annotations(generator)
 
     average_precisions = {}
@@ -192,7 +220,10 @@ def evaluate(
                 assigned_annotation = np.argmax(overlaps, axis=1)
                 max_overlap = overlaps[0, assigned_annotation]
 
-                if max_overlap >= iou_threshold and assigned_annotation not in detected_annotations:
+                if (
+                    max_overlap >= iou_threshold
+                    and assigned_annotation not in detected_annotations
+                ):
                     false_positives = np.append(false_positives, 0)
                     true_positives = np.append(true_positives, 1)
                     detected_annotations.append(assigned_annotation)
@@ -216,17 +247,19 @@ def evaluate(
 
         # compute recall and precision
         recall = true_positives / num_annotations
-        precision = true_positives / np.maximum(true_positives + false_positives, np.finfo(np.float64).eps)
+        precision = true_positives / np.maximum(
+            true_positives + false_positives, np.finfo(np.float64).eps
+        )
 
         # compute average precision
         average_precision = _compute_ap(recall, precision)
         average_precisions[label] = average_precision, num_annotations
-    
-    print('\nmAP:')
+
+    print("\nmAP:")
     MAP = 0
     for label in range(1, generator.num_classes()):
         label_name = generator.label_to_name(label)
         MAP = average_precisions[label][0]
-        print('{}: {}'.format(label_name, average_precisions[label][0]))
-    
+        print("{}: {}".format(label_name, average_precisions[label][0]))
+
     return average_precisions, MAP
